@@ -17,13 +17,25 @@ def img_producer(raw_data, batch_size, num_steps, shuffle=False, name="IMGProduc
         X = tf.reshape(raw_data[:,:,0:num_steps*samples_per_image], [rows, N*num_steps*samples_per_image])
         Y = tf.reshape(raw_data[:,:,1:num_steps*samples_per_image+1], [rows, N*num_steps*samples_per_image])
 
+        print X
+        print Y
+        print
+
         # remove excess data
         X = tf.slice(X, [0,0], [rows, epoch_size*batch_size*num_steps])
         Y = tf.slice(Y, [0,0], [rows, epoch_size*batch_size*num_steps])
 
+        print X
+        print Y
+        print
+
         # reshape to batches
         X = tf.reshape(X, [epoch_size, batch_size, rows, num_steps])
         Y = tf.reshape(Y, [epoch_size, batch_size, rows, num_steps])
+
+        print X
+        print Y
+        print
 
         #X = tf.reshape(raw_data[:,:,0:num_steps*samples_per_image], [epoch_size, batch_size, rows, num_steps])
         #Y = tf.reshape(raw_data[:,:,1:num_steps*samples_per_image+1], [epoch_size, batch_size, rows, num_steps])        
