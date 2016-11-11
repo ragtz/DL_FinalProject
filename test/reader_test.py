@@ -66,7 +66,7 @@ class ImgReaderTest(tf.test.TestCase):
                                             [13,14]]])
             finally:
                 coord.request_stop()
-                #coord.join()
+                coord.join([self])
 
 if __name__ == '__main__':
     tf.test.main()
