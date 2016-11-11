@@ -1,8 +1,8 @@
 import tensorflow as tf
 import numpy as np
 
-def img_producer(raw_data, batch_size, num_steps, shuffle=False, name=None):
-    with tf.name_scope(name, "IMGProducer", [raw_data, batch_size, num_steps, shuffle]):
+def img_producer(raw_data, batch_size, num_steps, shuffle=False, name="IMGProducer"):
+    with tf.name_scope(name):
         N, rows, cols = raw_data.shape
         raw_data = tf.convert_to_tensor(raw_data, name="raw_data", dtype=tf.int32)
 
