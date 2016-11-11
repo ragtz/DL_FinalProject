@@ -16,8 +16,10 @@ def img_producer(raw_data, batch_size, num_steps, shuffle=False, name="IMGProduc
         # get all samples and flatten to 2-D
         #X = tf.reshape(raw_data[:,:,0:num_steps*samples_per_image], [rows, N*num_steps*samples_per_image])
         #Y = tf.reshape(raw_data[:,:,1:num_steps*samples_per_image+1], [rows, N*num_steps*samples_per_image])
-        X = tf.reshape(raw_data[:,:,0:num_steps*samples_per_image], [N*rows, num_steps*samples_per_image])
-        Y = tf.reshape(raw_data[:,:,1:num_steps*samples_per_image+1], [N*rows, num_steps*samples_per_image])
+        #X = tf.reshape(raw_data[:,:,0:num_steps*samples_per_image], [N*rows, num_steps*samples_per_image])
+        #Y = tf.reshape(raw_data[:,:,1:num_steps*samples_per_image+1], [N*rows, num_steps*samples_per_image])
+        X = tf.concat(0, raw_data[:,:,0:num_steps*samples_per_image])
+        Y = tf.concat(0, raw_data[:,:,1:num_steps*samples_per_image+1])
 
         # remove excess data
         #X = tf.slice(X, [0,0], [rows, epoch_size*batch_size*num_steps])
