@@ -9,7 +9,7 @@ def img_producer(raw_data, batch_size, num_steps, shuffle=False, name="IMGProduc
         samples_per_image = (cols - 1) / num_steps
         epoch_size = N*samples_per_image/batch_size
 
-        assertion = tf.assert_positive(epoch_size, message="epoch_size == 0, decrease batch_size or num_steps")
+        assertion = tf.assert_positive(epoch_size)
         with tf.control_dependencies([assertion]):
             epoch_size = tf.identity(epoch_size, name="epoch_size")
 
