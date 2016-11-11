@@ -24,13 +24,15 @@ class ImgReaderTest(tf.test.TestCase):
             coord = tf.train.Coordinator()
             tf.train.start_queue_runners(session, coord=coord)
 
+            xval, yval = session.run([x, y])
+            print '--------------------'
+            print xval
+            print yval
+            print '--------------------'
+
             try:
-                xval, yval = session.run([x, y])
-                print '--------------------'
-                print xval
-                print yval
-                print '--------------------'
                 '''
+                xval, yval = session.run([x, y])
                 self.assertAllEqual(xval, [[[0,1],
                                             [0,1]],
  
