@@ -11,7 +11,7 @@ def int64Feature(value):
     return tf.train.Feature(int64_list=tf.train.Int64List(value=[value]))
 
 def bytesFeature(value):
-    return tf.train.Feature(bytes_list=tf.train.BytesList(value=[value])
+    return tf.train.Feature(bytes_list=tf.train.BytesList(value=[value]))
 
 def loadImgs(path):
     files = os.listdir(path)
