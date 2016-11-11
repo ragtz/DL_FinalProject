@@ -3,22 +3,24 @@ import tensorflow as tf
 import numpy as np
 
 class ImgReaderTest(tf.test.TestCase):
-    def testImgProducer(self):
-        raw_data = np.array([[[0,1,2,3,4],
-                              [0,1,2,3,4]],
+    def setUp(self):
+        self.raw_data = np.array([[[0,1,2,3,4],
+                                   [0,1,2,3,4]],
 
-                             [[5,6,7,8,9],
-                              [5,6,7,8,9]],
+                                  [[5,6,7,8,9],
+                                   [5,6,7,8,9]],
 
-                             [[10,11,12,13,14],
-                              [10,11,12,13,14]],
+                                  [[10,11,12,13,14],
+                                   [10,11,12,13,14]],
 
-                             [[15,16,17,18,19],
-                              [15,16,17,18,19]]])
+                                  [[15,16,17,18,19],
+                                   [15,16,17,18,19]]])
+
+    def imgProducerTest0(self):
         batch_size = 3
         num_steps = 2
 
-        x, y = reader.img_producer(raw_data, batch_size, num_steps)
+        x, y = reader.img_producer(self.raw_data, batch_size, num_steps)
 
         with self.test_session() as session:
             coord = tf.train.Coordinator()
@@ -26,9 +28,6 @@ class ImgReaderTest(tf.test.TestCase):
             
             try:
                 xval, yval = session.run([x, y])
-                print xval
-                print yval
-                print
                 self.assertAllEqual(xval, [[[0,1],
                                             [0,1]],
  
@@ -47,9 +46,6 @@ class ImgReaderTest(tf.test.TestCase):
                                             [6,7]]])
 
                 xval, yval = session.run([x, y])
-                print xval
-                print yval
-                print
                 self.assertAllEqual(xval, [[[7,8],
                                             [7,8]],
  
