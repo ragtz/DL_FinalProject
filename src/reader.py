@@ -29,6 +29,10 @@ def img_producer(raw_data, batch_size, num_steps, shuffle=False, name="IMGProduc
         X = tf.reshape(tf.transpose(X), [epoch_size, batch_size, rows, num_steps])
         Y = tf.reshape(tf.transpose(Y), [epoch_size, batch_size, rows, num_steps])
 
+        # internal transpose
+        X = tf.convert_to_tensor([tf.transpose(X[i,:,:]) for i in range(N)])
+        Y = tf.convert_to_tensor([tf.transpose(X[i,:,:]) for i in range(N)])
+
         #X = tf.reshape(raw_data[:,:,0:num_steps*samples_per_image], [epoch_size, batch_size, rows, num_steps])
         #Y = tf.reshape(raw_data[:,:,1:num_steps*samples_per_image+1], [epoch_size, batch_size, rows, num_steps])        
 
