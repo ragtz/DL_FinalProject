@@ -13,12 +13,12 @@ def bytesFeature(value):
     return tf.train.Feature(bytes_list=tf.train.BytesList(value=[value]))
 
 def convertToRecords(path, filename):
-    dataset = np.load(os.path.join(path, filename + '.npy'))
+    imgs = np.load(os.path.join(path, filename + '.npy'))
     filename = os.path.join(path, filename + '.tfrecords')
     
-    N = dataset.shape[0]
-    rows = dataset.shape[1]
-    cols = dataset.shape[2]
+    N = imgs.shape[0]
+    rows = imgs.shape[1]
+    cols = imgs.shape[2]
 
     writer = tf.python_io.TFRecordWriter(filename)
 
