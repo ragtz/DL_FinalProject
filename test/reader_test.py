@@ -66,6 +66,68 @@ class ImgReaderTest(tf.test.TestCase):
                 coord.request_stop()
                 coord.join(threads)
 
+    def imgProducerTest1(self):
+        batch_size = 2
+        num_steps = 2
+
+        x, y = reader.img_producer(self.raw_data, batch_size, num_steps)
+
+        with self.test_session() as session:
+            coord = tf.train.Coordinator()
+            threads = tf.train.start_queue_runners(session, coord=coord)
+            
+            try:
+                xval, yval = session.run([x, y])
+                self.assertAllEqual(xval, [[[0,1],
+                                            [0,1]],
+ 
+                                           [[2,3],
+                                            [2,3]]])
+                self.assertAllEqual(yval, [[[1,2],
+                                            [1,2]],
+ 
+                                           [[3,4],
+                                            [3,4]]])
+
+                xval, yval = session.run([x, y])
+                self.assertAllEqual(xval, [[[5,6],
+                                            [5,6]],
+ 
+                                           [[7,8],
+                                            [7,8]]])
+                self.assertAllEqual(yval, [[[6,7],
+                                            [6,7]],
+ 
+                                           [[8,9],
+                                            [8,9]]])
+
+                xval, yval = session.run([x, y])
+                self.assertAllEqual(xval, [[[10,11],
+                                            [10,11]],
+ 
+                                           [[12,13],
+                                            [12,13]]])
+                self.assertAllEqual(yval, [[[11,12],
+                                            [11,12]],
+ 
+                                           [[13,14],
+                                            [13,14]]])
+
+                xval, yval = session.run([x, y])
+                self.assertAllEqual(xval, [[[15,16],
+                                            [15,16]],
+ 
+                                           [[17,18],
+                                            [17,18]]])
+                self.assertAllEqual(yval, [[[16,17],
+                                            [16,17]],
+ 
+                                           [[18,19],
+                                            [18,19]]])
+            finally:
+                coord.request_stop()
+                coord.join(threads)
+
 if __name__ == '__main__':
     tf.test.main()
 
