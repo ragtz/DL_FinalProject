@@ -26,6 +26,8 @@ class ImgReaderTest(tf.test.TestCase):
 
             try:
                 xval, yval = session.run([x, y])
+                print xval
+                print yval
                 '''
                 self.assertAllEqual(xval, [[[0,1],
                                             [0,1]],
