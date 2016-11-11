@@ -16,7 +16,7 @@ class ImgReaderTest(tf.test.TestCase):
                                   [[15,16,17,18,19],
                                    [15,16,17,18,19]]])
 
-    def imgProducerTest0(self):
+    def testImgProducer0(self):
         batch_size = 3
         num_steps = 2
 
@@ -66,7 +66,7 @@ class ImgReaderTest(tf.test.TestCase):
                 coord.request_stop()
                 coord.join(threads)
 
-    def imgProducerTest1(self):
+    def testImgProducer1(self):
         batch_size = 2
         num_steps = 2
 
@@ -124,6 +124,44 @@ class ImgReaderTest(tf.test.TestCase):
  
                                            [[18,19],
                                             [18,19]]])
+            finally:
+                coord.request_stop()
+                coord.join(threads)
+
+    def testImgProducer2(self):
+        batch_size = 2
+        num_steps = 3
+
+        x, y = reader.img_producer(self.raw_data, batch_size, num_steps)
+
+        with self.test_session() as session:
+            coord = tf.train.Coordinator()
+            threads = tf.train.start_queue_runners(session, coord=coord)
+            
+            try:
+                xval, yval = session.run([x, y])
+                self.assertAllEqual(xval, [[[0,1,2],
+                                            [0,1,2]],
+ 
+                                           [[5,6,7],
+                                            [5,6,7]]])
+                self.assertAllEqual(yval, [[[1,2,3],
+                                            [1,2,3]],
+ 
+                                           [[6,7,8],
+                                            [6,7,8]]])
+
+                xval, yval = session.run([x, y])
+                self.assertAllEqual(xval, [[[10,11,12],
+                                            [10,11,12]],
+ 
+                                           [[15,16,17],
+                                            [15,16,17]]])
+                self.assertAllEqual(yval, [[[11,12,13],
+                                            [11,12,13]],
+ 
+                                           [[16,17,18],
+                                            [16,17,18]]])
             finally:
                 coord.request_stop()
                 coord.join(threads)
