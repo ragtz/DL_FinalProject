@@ -185,7 +185,7 @@ class ImgReaderTest(tf.test.TestCase):
                                             [2,3]],
 
                                            [[5,6],
-                                            [5,6]]
+                                            [5,6]],
 
                                            [[7,8],
                                             [7,8]],
@@ -199,7 +199,7 @@ class ImgReaderTest(tf.test.TestCase):
                                             [3,4]],
 
                                            [[6,7],
-                                            [6,7]]
+                                            [6,7]],
 
                                            [[8,9],
                                             [8,9]],
