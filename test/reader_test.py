@@ -22,7 +22,7 @@ class ImgReaderTest(tf.test.TestCase):
 
         with self.test_session() as session:
             coord = tf.train.Coordinator()
-            tf.train.start_queue_runners(session, coord=coord)
+            threads = tf.train.start_queue_runners(session, coord=coord)
             
             try:
                 xval, yval = session.run([x, y])
@@ -66,7 +66,7 @@ class ImgReaderTest(tf.test.TestCase):
                                             [13,14]]])
             finally:
                 coord.request_stop()
-                coord.join([session])
+                coord.join(threads)
 
 if __name__ == '__main__':
     tf.test.main()
