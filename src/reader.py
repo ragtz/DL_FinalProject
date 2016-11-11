@@ -31,14 +31,11 @@ def img_producer(raw_data, batch_size, num_steps, shuffle=False, name="IMGProduc
 
         # internal transpose
         X = tf.transpose(X, perm=[0,1,3,2])
-        Y = tf.transpose(Y, perm=[0,1,3,2])
+        Y = tf.transpose(Y, perm=[0,1,3,2])      
 
-        #X = tf.reshape(raw_data[:,:,0:num_steps*samples_per_image], [epoch_size, batch_size, rows, num_steps])
-        #Y = tf.reshape(raw_data[:,:,1:num_steps*samples_per_image+1], [epoch_size, batch_size, rows, num_steps])        
+        i = tf.train.range_input_producer(epoch_size, shuffle=shuffle).dequeue()
+        x = tf.slice(X, [i,0,0,0], [1, batch_size, rows, num_steps])
+        y = tf.slice(Y, [i,0,0,0], [1, batch_size, rows, num_steps])
 
-        #i = tf.train.range_input_producer(epoch_size, shuffle=shuffle).dequeue()
-        #x = tf.slice(X, [i,0,0,0], [1, batch_size, rows, num_steps])
-        #y = tf.slice(Y, [i,0,0,0], [1, batch_size, rows, num_steps])
-
-        return X, Y #x, y
+        return x, y
 
