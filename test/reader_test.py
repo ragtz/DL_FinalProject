@@ -18,15 +18,16 @@ class ImgReaderTest(tf.test.TestCase):
         batch_size = 3
         num_steps = 2
 
+        print "Before"
         x, y = reader.img_producer(raw_data, batch_size, num_steps)
+        print "After"
 
         with self.test_session() as session:
             coord = tf.train.Coordinator()
             tf.train.start_queue_runners(session, coord=coord)
-            print "Before"
+            
             try:
                 xval, yval = session.run([x, y])
-                print "After"
                 self.assertAllEqual(xval, [[[0,1],
                                             [0,1]],
  
