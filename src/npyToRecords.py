@@ -32,8 +32,7 @@ def convertToRecords(path, filename):
     writer.close()
 
 def main(argv):
-    imgs = loadImgs(FLAGS.path)
-    convertToRecords(imgs, FLAGS.path, FLAGS.filename)
+    convertToRecords(FLAGS.path, FLAGS.filename)
 
 if __name__ == '__main__':
     tf.app.run()
