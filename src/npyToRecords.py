@@ -1,4 +1,3 @@
-from scipy.ndimage import imread
 import tensorflow as tf
 import numpy as np
 import os
@@ -14,8 +13,8 @@ def bytesFeature(value):
     return tf.train.Feature(bytes_list=tf.train.BytesList(value=[value]))
 
 def convertToRecords(path, filename):
-    imgs = np.load(os.join(path, filename + '.npy')
-    filename = os.join(path, filename + '.tfrecords')
+    imgs = np.load(os.path.join(path, filename + '.npy')
+    filename = os.path.join(path, filename + '.tfrecords')
     
     N = dataset.shape[0]
     rows = dataset.shape[1]

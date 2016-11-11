@@ -1,3 +1,4 @@
+from scipy.ndimage import imread
 import numpy as np
 import argparse
 import os
@@ -22,5 +23,5 @@ if __name__ == '__main__':
     filename = args.filename
 
     imgs = loadImgs(path)
-    np.save(os.join(path, filename), imgs)
+    np.save(os.path.join(path, filename), imgs)
     
