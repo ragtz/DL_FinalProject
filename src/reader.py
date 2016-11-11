@@ -34,8 +34,8 @@ def img_producer(raw_data, batch_size, num_steps, shuffle=False, name="IMGProduc
         Y = tf.transpose(Y, perm=[0,1,3,2])      
 
         i = tf.train.range_input_producer(epoch_size, shuffle=shuffle).dequeue()
-        x = tf.slice(X, [i,0,0,0], [1, batch_size, rows, num_steps])
-        y = tf.slice(Y, [i,0,0,0], [1, batch_size, rows, num_steps])
+        x = tf.squeeze(tf.slice(X, [i,0,0,0], [1, batch_size, rows, num_steps]))
+        y = tf.squeeze(tf.slice(Y, [i,0,0,0], [1, batch_size, rows, num_steps]))
 
         return x, y
 
