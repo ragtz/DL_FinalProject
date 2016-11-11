@@ -29,9 +29,8 @@ class ImgReaderTest(tf.test.TestCase):
             print xval
             print yval
             print '--------------------'
-
+            '''
             try:
-                '''
                 xval, yval = session.run([x, y])
                 self.assertAllEqual(xval, [[[0,1],
                                             [0,1]],
@@ -67,10 +66,10 @@ class ImgReaderTest(tf.test.TestCase):
 
                                            [[13,14],
                                             [13,14]]])
-                '''
             finally:
                 coord.request_stop()
                 coord.join()
+            '''
 
 if __name__ == '__main__':
     tf.test.main()
