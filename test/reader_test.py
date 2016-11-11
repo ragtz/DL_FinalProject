@@ -18,9 +18,7 @@ class ImgReaderTest(tf.test.TestCase):
         batch_size = 3
         num_steps = 2
 
-        print "Before"
         x, y = reader.img_producer(raw_data, batch_size, num_steps)
-        print "After"
 
         with self.test_session() as session:
             coord = tf.train.Coordinator()
