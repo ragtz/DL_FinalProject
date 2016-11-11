@@ -17,6 +17,7 @@ def img_producer(raw_data, batch_size, num_steps, shuffle=False, name="IMGProduc
         Y = tf.reshape(raw_data[:,:,1:num_steps*samples_per_image+1], [epoch_size, batch_size, rows, num_steps])        
         
         i = tf.train.range_input_producer(epoch_size, shuffle=shuffle).dequeue()
+        print i
         x = X[i,:,:,:]
         y = Y[i,:,:,:]
 
