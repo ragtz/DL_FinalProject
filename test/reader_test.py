@@ -17,8 +17,6 @@ class ImgReaderTest(tf.test.TestCase):
                                    [15,16,17,18,19]]])
 
     def testImgProducer0(self):
-        print "Test 0"
-
         batch_size = 3
         num_steps = 2
 
@@ -69,8 +67,6 @@ class ImgReaderTest(tf.test.TestCase):
                 coord.join(threads)
 
     def testImgProducer1(self):
-        print "Test 1"
-
         batch_size = 2
         num_steps = 2
 
@@ -133,8 +129,6 @@ class ImgReaderTest(tf.test.TestCase):
                 coord.join(threads)
 
     def testImgProducer2(self):
-        print "Test 2"
-
         batch_size = 2
         num_steps = 3
 
@@ -173,8 +167,6 @@ class ImgReaderTest(tf.test.TestCase):
                 coord.join(threads)
 
     def testImgProducer3(self):
-        print "Test 3"
-
         batch_size = 5
         num_steps = 2
 
@@ -219,8 +211,6 @@ class ImgReaderTest(tf.test.TestCase):
                 coord.join(threads)
 
     def testImgProducer4(self):
-        print "Test 4"
-
         batch_size = 3
         num_steps = 4
 
