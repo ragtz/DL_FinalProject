@@ -13,7 +13,7 @@ def bytesFeature(value):
     return tf.train.Feature(bytes_list=tf.train.BytesList(value=[value]))
 
 def convertToRecords(path, filename):
-    imgs = np.load(os.path.join(path, filename + '.npy'))
+    dataset = np.load(os.path.join(path, filename + '.npy'))
     filename = os.path.join(path, filename + '.tfrecords')
     
     N = dataset.shape[0]
