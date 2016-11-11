@@ -13,17 +13,8 @@ def int64Feature(value):
 def bytesFeature(value):
     return tf.train.Feature(bytes_list=tf.train.BytesList(value=[value]))
 
-def loadImgs(path):
-    files = os.listdir(path)
-    imgs = []
-
-    for f in files:
-        img = imread(os.path.join(path, f), mode='I')
-        imgs.append(img)
-
-    return np.array(imgs)
-
-def convertToRecords(imgs, path, filename):
+def convertToRecords(path, filename):
+    imgs = np.load(os.join(path, filename + '.npy')
     filename = os.join(path, filename + '.tfrecords')
     
     N = dataset.shape[0]
