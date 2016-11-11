@@ -8,6 +8,7 @@ def img_producer(raw_data, batch_size, num_steps, shuffle=False, name="IMGProduc
 
         samples_per_image = (cols - 1) / num_steps
         epoch_size = N*samples_per_image/batch_size
+        print epoch_size
 
         assertion = tf.assert_positive(epoch_size)
         with tf.control_dependencies([assertion]):
@@ -17,9 +18,8 @@ def img_producer(raw_data, batch_size, num_steps, shuffle=False, name="IMGProduc
         Y = tf.reshape(raw_data[:,:,1:num_steps*samples_per_image+1], [epoch_size, batch_size, rows, num_steps])        
         
         i = tf.train.range_input_producer(epoch_size, shuffle=shuffle).dequeue()
-        print i
-        x = X[i,:,:,:]
-        y = Y[i,:,:,:]
+        #x = X[i,:,:,:]
+        #y = Y[i,:,:,:]
 
-        return x, y
+        return i #x, y
 
