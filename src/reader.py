@@ -71,6 +71,11 @@ def batch_data_array(raw_data, batch_size, num_steps):
 
     return X, Y
 
+def get_batch(X, Y, i):
+    x = X[i,:,:,:]
+    y = Y[i,:,:,:]
+    return x, y
+
 def img_iterator(raw_data, batch_size, num_steps, shuffle=False):
     N, rows, cols = raw_data.shape
     es = epoch_size(raw_data, batch_size, num_steps)

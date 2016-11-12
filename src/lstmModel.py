@@ -9,7 +9,8 @@ class LSTMInput(object):
         self.num_steps = config.num_steps
         self.feature_vector_size = reader.feature_vector_size(self.data)
         self.epoch_size = reader.epoch_size(self.data, self.batch_size, self.num_steps)
-        self.batch_iterator = reader.img_iterator(self.data, self.batch_size, self.num_steps, shuffle=True)
+        #self.batch_iterator = reader.img_iterator(self.data, self.batch_size, self.num_steps, shuffle=True)
+        self.X, self.Y = reader.batch_data_array(self.data, self.batch_size, self.num_steps)
 
 class LSTMModel(object):
     def __init__(self, config, lstm_input, session, name="lstm_model"):
@@ -47,16 +48,17 @@ class LSTMModel(object):
 
     def train_epoch(self):
         print "--------------------"
-        for i, (x, y) in enumerate(self.lstm_input.batch_iterator):
+        for i in np.random.permutation(self.lstm_input.epoch_size):
             print "Run Batch", i
 
+            x, y = reader.get_batch(self.X, self.Y, i)
             loss = self.train_batch(x, y)
 
             print "Loss:", loss
 
     def train(self):
-        print "===================="
         for i in range(self.config.max_epoch):
+            print "===================="
             self.train_epoch()
 
     def run_step(self):
