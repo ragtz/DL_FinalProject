@@ -57,7 +57,7 @@ class LSTMModel(object):
         loss, _ = self.session.run([self.loss, self.train_op], feed_dict={self.xbatch: xbatch, self.ybatch: ybatch, self.initial_state: initial_state})
         return loss
     '''
-    def train_batch(self, xbatch, batch):
+    def train_batch(self, xbatch, ybatch):
         initial_state = np.zeros((self.config.batch_size, 2*self.config.num_layers*self.config.hidden_size))
         loss, _ = self.session.run([self.loss, self.train_op], feed_dict={self.xbatch: xbatch, self.ybatch: ybatch, self.initial_state: initial_state})
         return loss
