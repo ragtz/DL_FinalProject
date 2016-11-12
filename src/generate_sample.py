@@ -30,7 +30,7 @@ def main(argv):
             out = lstm_model.run_step([samples[i][-1]], False)
             samples[i].append(out)
 
-    np.save(FLAGS.samples)
+    np.save(FLAGS.samples, samples)
 
     session.close()
 
