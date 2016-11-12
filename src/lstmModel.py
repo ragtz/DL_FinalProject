@@ -23,7 +23,7 @@ class LSTMModel(object):
             lstm_cell = tf.nn.rnn_cell.BasicLSTMCell(self.config.hidden_size, forget_bias=1.0, state_is_tuple=True)
             self.lstm = tf.nn.rnn_cell.MultiRNNCell([lstm_cell] * self.config.num_layers, state_is_tuple=True)
 
-            self.xbatch = tf.placeholder(tf.float32, shape=(None, None, self.config.feature_vector_size), name="xbatch")
+            self.xbatch = tf.placeholder(tf.float32, shape=(None, None, self.lstm_input.feature_vector_size), name="xbatch")
             self.initial_state = self.lstm.zero_state(self.config.batch_size, tf.float32)
 
             #outputs, self.lstm_new_state = tf.nn.dynamic_rnn(self.lstm, self.lstm_input.input, initial_state=self.initial_state)
@@ -38,7 +38,7 @@ class LSTMModel(object):
             #batch_time_shape = tf.shape(outputs)
             #self.final_outputs = tf.reshape(network_output, (batch_time_shape[0], batch_time_shape[1], self.lstm_input.feature_vector_size))
 
-            self.ybatch = tf.placeholder(tf.float32, (None, None, self.config.feature_vector_size))
+            self.ybatch = tf.placeholder(tf.float32, (None, None, self.lstm_input.feature_vector_size))
             ybatch_reshaped = tf.reshape(self.ybatch, [-1, self.lstm_input.feature_vector_size])
             #targets_reshaped = tf.reshape(self.lstm_input.targets, [-1, self.lstm_input.feature_vector_size])
 
