@@ -8,13 +8,13 @@ FLAGS = tf.app.flags.FLAGS
 
 def main(argv):
     session = tf.Session()
-    session.run(tf.initialize_all_variables())
 
     print "Load input"
     lstm_input = LSTMInput(config.configs[FLAGS.model], FLAGS.data)
 
     print "Init Model"
     lstm_model = LSTMModel(config.configs[FLAGS.model], lstm_input, session)
+    session.run(tf.initialize_all_variables())
 
     print "Train epoch:", lstm_input.epoch_size, "batches of size", lstm_input.feature_vector_size, "x", lstm_input.num_steps
     lstm_model.train_epoch()
