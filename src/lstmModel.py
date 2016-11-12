@@ -23,9 +23,11 @@ class LSTMModel(object):
             lstm_cell = tf.nn.rnn_cell.BasicLSTMCell(self.config.hidden_size, forget_bias=1.0, state_is_tuple=True)
             self.lstm = tf.nn.rnn_cell.MultiRNNCell([lstm_cell] * self.config.num_layers, state_is_tuple=True)
 
+            self.xbatch = tf.placeholder(tf.float32, shape=(None, None, self.config.feature_vector_size), name="xbatch")
             self.initial_state = self.lstm.zero_state(self.config.batch_size, tf.float32)
 
-            outputs, self.lstm_new_state = tf.nn.dynamic_rnn(self.lstm, self.lstm_input.input, initial_state=self.initial_state)
+            #outputs, self.lstm_new_state = tf.nn.dynamic_rnn(self.lstm, self.lstm_input.input, initial_state=self.initial_state)
+            outputs, self.lstm_new_state = tf.nn.dynamic_rnn(self.lstm, self.xbatch, initial_state=self.initial_state)
 
             self.rnn_out_W = tf.Variable(tf.random_normal((self.config.hidden_size, self.lstm_input.feature_vector_size), stddev=0.01))
             self.rnn_out_B = tf.Variable(tf.random_normal((self.lstm_input.feature_vector_size,), stddev=0.01))
@@ -36,21 +38,27 @@ class LSTMModel(object):
             #batch_time_shape = tf.shape(outputs)
             #self.final_outputs = tf.reshape(network_output, (batch_time_shape[0], batch_time_shape[1], self.lstm_input.feature_vector_size))
 
-            targets_reshaped = tf.reshape(self.lstm_input.targets, [-1, self.lstm_input.feature_vector_size])
+            self.ybatch = tf.placeholder(tf.float32, (None, None, self.config.feature_vector_size))
+            ybatch_reshaped = tf.reshape(self.ybatch, [-1, self.lstm_input.feature_vector_size])
+            #targets_reshaped = tf.reshape(self.lstm_input.targets, [-1, self.lstm_input.feature_vector_size])
 
-            self.loss = tf.reduce_mean(tf.nn.l2_loss(tf.sub(network_output, targets_reshaped)))
+            #self.loss = tf.reduce_mean(tf.nn.l2_loss(tf.sub(network_output, targets_reshaped)))
+            self.loss = tf.reduce_mean(tf.nn.l2_loss(tf.sub(network_output, ybatch_reshaped)))
             self.train_op = tf.train.RMSPropOptimizer(self.config.learning_rate).minimize(self.loss)
 
-    def train_epoch(self):
-        fetches = {'loss': self.loss, 'train_op': self.train_op}
+    def train_batch(self):
+        xbatch, ybatch = self.session.run([self.lstm_input.input, self.lstm_input.targets])
+        loss, _ = self.session.run([self.loss, self.train_op], feed_dict={self.xbatch: xbatch, self.ybatch: ybatch})
+        return loss
 
+    def train_epoch(self):
         print "--------------------"
         for i in range(self.lstm_input.epoch_size):
             print "Run Batch", i
 
-            vals = self.session.run(fetches)
+            loss = self.train_batch()
 
-            print "Loss:", vals['loss']
+            print "Loss:", loss
 
     def run_step(self):
         pass
