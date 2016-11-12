@@ -38,7 +38,7 @@ class LSTMModel(object):
             ybatch_reshaped = tf.reshape(self.ybatch, [-1, self.lstm_input.feature_vector_size])
 
             self.loss = tf.reduce_mean(tf.nn.l2_loss(tf.sub(network_output, ybatch_reshaped)))
-            self.train_op = tf.train.RMSPropOptimizer(self.config.learning_rate, decay=self.config.decay, self.config.momentum).minimize(self.loss)
+            self.train_op = tf.train.RMSPropOptimizer(self.config.learning_rate, decay=self.config.decay, momentum=self.config.momentum).minimize(self.loss)
 
     def train_batch(self, xbatch, ybatch):
         initial_state = np.zeros((self.config.batch_size, 2*self.config.num_layers*self.config.hidden_size))
