@@ -16,7 +16,7 @@ def main(argv):
     lstm_model = LSTMModel(config.configs[FLAGS.model], lstm_input, session)
     session.run(tf.initialize_all_variables())
 
-    print "Train epoch:", lstm_input.epoch_size, "batches of size", lstm_input.feature_vector_size, "x", lstm_input.num_steps
+    #print "Train epoch:", lstm_input.epoch_size, "batches of size", lstm_input.feature_vector_size, "x", lstm_input.num_steps
     lstm_model.train()
 
     session.close()

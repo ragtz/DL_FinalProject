@@ -47,19 +47,15 @@ class LSTMModel(object):
         return loss
 
     def train_epoch(self):
-        print "--------------------"
         for i in np.random.permutation(self.lstm_input.epoch_size):
-            print "Run Batch", i
-
             x, y = reader.get_batch(self.lstm_input.X, self.lstm_input.Y, i)
             loss = self.train_batch(x, y)
-
-            print "Loss:", loss
+        return loss
 
     def train(self):
         for i in range(self.config.max_epoch):
-            print "===================="
-            self.train_epoch()
+            loss = self.train_epoch()
+            print "Epoch " + i + ": " + str(loss)
 
     def run_step(self):
         pass
