@@ -51,7 +51,7 @@ class LSTMModel(object):
         xbatch, ybatch = self.session.run([self.lstm_input.input, self.lstm_input.targets])
         xbatch = tf.squeeze(tf.slice(xbatch, [i,0,0,0], [1, self.config.batch_size, self.config.num_steps, self.lstm_input.feature_vector_size]))
         ybatch = tf.squeeze(tf.slice(ybatch, [i,0,0,0], [1, self.config.batch_size, self.config.num_steps, self.lstm_input.feature_vector_size]))
-        initial_state = np.zeros((tf.shape(xbatch)[0], 2*self.config.num_layers*self.config.hidden_size))
+        initial_state = np.zeros((self.config.batch_size, 2*self.config.num_layers*self.config.hidden_size))
         loss, _ = self.session.run([self.loss, self.train_op], feed_dict={self.xbatch: xbatch, self.ybatch: ybatch, self.initial_state: initial_state})
         return loss
 
