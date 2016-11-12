@@ -24,7 +24,7 @@ class LSTMModel(object):
 
             output, self.lstm_new_state = tf.nn.dynamic_rnn(self.lstm, self.lstm_input.input, dtype=tf.float32)
 
-            self.loss = tf.reduce_mean(tf.nn.l2_loss(output, self.lstm_input.targets))
+            self.loss = tf.reduce_mean(tf.nn.l2_loss(tf.sub(output, self.lstm_input.targets)))
             self.train_op = tf.train.GradientDescentOptimizer(self.config.learning_rate).minimize(self.loss)
 
     def train_epoch(self):
