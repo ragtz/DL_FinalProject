@@ -37,7 +37,7 @@ class LSTMModel(object):
             network_output = (tf.matmul(outputs_reshaped, self.rnn_out_W) + self.rnn_out_B)
 
             batch_time_shape = tf.shape(outputs)
-            self.final_outputs = tf.reshape(network_output, (batch_time_shape[0], batch_time_shape[1], self.config.feature_vector_size))
+            self.final_outputs = tf.reshape(network_output, (batch_time_shape[0], batch_time_shape[1], self.lstm_input.feature_vector_size))
 
             self.ybatch = tf.placeholder(tf.float32, (None, None, self.lstm_input.feature_vector_size))
             ybatch_reshaped = tf.reshape(self.ybatch, [-1, self.lstm_input.feature_vector_size])
