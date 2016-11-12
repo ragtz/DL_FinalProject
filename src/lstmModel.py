@@ -47,14 +47,12 @@ class LSTMModel(object):
             self.loss = tf.reduce_mean(tf.nn.l2_loss(tf.sub(network_output, ybatch_reshaped)))
             self.train_op = tf.train.RMSPropOptimizer(self.config.learning_rate).minimize(self.loss)
 
-    def train_batch(self):
-        print "Read image"
+    def train_batch(self, i):
         xbatch, ybatch = self.session.run([self.lstm_input.input, self.lstm_input.targets])
-        print xbatch.shape
-        print ybatch.shape
-        print
-        #initial_state = np.zeros((xbatch.shape[0], 2*self.config.num_layers*self.config.hidden_size))
-        #loss, _ = self.session.run([self.loss, self.train_op], feed_dict={self.xbatch: xbatch, self.ybatch: ybatch, self.initial_state: initial_state})
+        xbatch = tf.squeeze(tf.slice(xbatch, [i,0,0,0], [1, self.config.batch_size, self.config.num_steps, self.lstm_input.feature_vector_size]))
+        ybatch = tf.squeeze(tf.slice(ybatch, [i,0,0,0], [1, self.config.batch_size, self.config.num_steps, self.lstm_input.feature_vector_size]))
+        initial_state = np.zeros((xbatch.shape[0], 2*self.config.num_layers*self.config.hidden_size))
+        loss, _ = self.session.run([self.loss, self.train_op], feed_dict={self.xbatch: xbatch, self.ybatch: ybatch, self.initial_state: initial_state})
         return loss
 
     def train_epoch(self):
@@ -62,7 +60,7 @@ class LSTMModel(object):
         for i in range(self.lstm_input.epoch_size):
             print "Run Batch", i
 
-            loss = self.train_batch()
+            loss = self.train_batch(i)
 
             print "Loss:", loss
 
