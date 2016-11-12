@@ -10,7 +10,7 @@ class LSTMInput(object):
         self.feature_vector_size = reader.feature_vector_size(self.data)
         self.epoch_size = reader.epoch_size(self.data, self.batch_size, self.num_steps)
         #self.input, self.targets = reader.img_producer(self.data, self.batch_size, self.num_steps, shuffle=True)
-        self.batch_iterator = reader.img_producer(self.data, self.batch_size, self.num_steps, shuffle=True)
+        self.batch_iterator = reader.img_iterator(self.data, self.batch_size, self.num_steps, shuffle=True)
 
 class LSTMModel(object):
     def __init__(self, config, lstm_input, session, name="lstm_model"):
