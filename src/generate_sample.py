@@ -25,10 +25,10 @@ def main(argv):
 
     samples = []
     for i in range(FLAGS.num_samples):
-        samples.append([255*np.ones(lstm_input.feature_vector_size)])
+        samples.append([np.zeros(lstm_input.feature_vector_size)])
         for j in range(FLAGS.sample_length):
             out = lstm_model.run_step([samples[i][-1]], False)
-            samples[i].append(out)
+            samples[i].append(255*out)
 
     np.save(FLAGS.samples, samples)
 

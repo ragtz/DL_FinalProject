@@ -66,8 +66,8 @@ def batch_data_array(raw_data, batch_size, num_steps):
     Y = Y[0:rows, 0:epoch_size*batch_size*num_steps]
 
     # reshape to batches
-    X = np.reshape(np.transpose(X), [epoch_size, batch_size, num_steps, rows])
-    Y = np.reshape(np.transpose(Y), [epoch_size, batch_size, num_steps, rows])
+    X = np.reshape(np.transpose(X), [epoch_size, batch_size, num_steps, rows])/255.0
+    Y = np.reshape(np.transpose(Y), [epoch_size, batch_size, num_steps, rows])/255.0
 
     return X, Y
 
