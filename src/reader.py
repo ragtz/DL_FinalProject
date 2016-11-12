@@ -1,6 +1,10 @@
 import tensorflow as tf
 import numpy as np
 
+def feature_vector_size(raw_data):
+    _, rows, _ = raw_data.shape
+    return rows
+
 def epoch_size(raw_data, batch_size, num_steps):
     N, rows, cols = raw_data.shape
     samples_per_image = (cols - 1) / num_steps
