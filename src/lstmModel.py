@@ -40,7 +40,9 @@ class LSTMModel(object):
             self.train_op = tf.train.GradientDescentOptimizer(self.config.learning_rate).minimize(self.loss)
 
     def train_epoch(self):
+        print "--------------------"
         for i in range(self.lstm_input.epoch_size):
+            print "Run Batch", i
             self.session.run([self.train_op])
             print "Loss:", self.loss
 

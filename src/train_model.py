@@ -15,7 +15,7 @@ def main(argv):
     print "Init Model"
     lstm_model = LSTMModel(config.configs[FLAGS.model], lstm_input, session)
 
-    print "Train epoch:", lstm_input.epoch_size
+    print "Train epoch:", lstm_input.epoch_size, "batches of size", lstm_input.feature_vector_size, "x", lstm_input.num_steps
     lstm_model.train_epoch()
 
     session.close()
