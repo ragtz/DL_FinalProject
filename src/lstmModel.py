@@ -9,7 +9,8 @@ class LSTMInput(object):
         self.num_steps = config.num_steps
         self.feature_vector_size = reader.feature_vector_size(self.data)
         self.epoch_size = reader.epoch_size(self.data, self.batch_size, self.num_steps)
-        self.input, self.targets = reader.img_producer(self.data, self.batch_size, self.num_steps, shuffle=True)
+        #self.input, self.targets = reader.img_producer(self.data, self.batch_size, self.num_steps, shuffle=True)
+        self.batch_iterator = reader.img_producer(self.data, self.batch_size, self.num_steps, shuffle=True)
 
 class LSTMModel(object):
     def __init__(self, config, lstm_input, session, name="lstm_model"):
@@ -47,6 +48,7 @@ class LSTMModel(object):
             self.loss = tf.reduce_mean(tf.nn.l2_loss(tf.sub(network_output, ybatch_reshaped)))
             self.train_op = tf.train.RMSPropOptimizer(self.config.learning_rate).minimize(self.loss)
 
+    '''
     def train_batch(self, i):
         xbatch, ybatch = self.session.run([self.lstm_input.input, self.lstm_input.targets])
         xbatch = tf.squeeze(tf.slice(xbatch, [i,0,0,0], [1, self.config.batch_size, self.config.num_steps, self.lstm_input.feature_vector_size])).eval(session=self.session)
@@ -54,13 +56,28 @@ class LSTMModel(object):
         initial_state = np.zeros((self.config.batch_size, 2*self.config.num_layers*self.config.hidden_size))
         loss, _ = self.session.run([self.loss, self.train_op], feed_dict={self.xbatch: xbatch, self.ybatch: ybatch, self.initial_state: initial_state})
         return loss
+    '''
+    def train_batch(self, xbatch, batch):
+        initial_state = np.zeros((self.config.batch_size, 2*self.config.num_layers*self.config.hidden_size))
+        loss, _ = self.session.run([self.loss, self.train_op], feed_dict={self.xbatch: xbatch, self.ybatch: ybatch, self.initial_state: initial_state})
+        return loss
 
+    '''
     def train_epoch(self):
         print "--------------------"
         for i in range(self.lstm_input.epoch_size):
             print "Run Batch", i
 
             loss = self.train_batch(i)
+
+            print "Loss:", loss
+    '''
+    def train_epoch(self):
+        print "--------------------"
+        for i, (x, y) in enumerate(self.lstm_input.batch_iterator):
+            print "Run Batch", i
+
+            loss = self.train_batch(x, y)
 
             print "Loss:", loss
 
