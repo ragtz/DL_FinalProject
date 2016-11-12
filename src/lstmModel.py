@@ -55,7 +55,7 @@ class LSTMModel(object):
     def train(self):
         for i in range(self.config.max_epoch):
             loss = self.train_epoch()
-            print "Epoch " + i + ": " + str(loss)
+            print "Epoch " + str(i) + ": " + str(loss)
 
     def run_step(self):
         pass
