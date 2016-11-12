@@ -51,7 +51,7 @@ class LSTMModel(object):
         for i in np.random.permutation(self.lstm_input.epoch_size):
             print "Run Batch", i
 
-            x, y = reader.get_batch(self.X, self.Y, i)
+            x, y = reader.get_batch(self.lstm_input.X, self.lstm_input.Y, i)
             loss = self.train_batch(x, y)
 
             print "Loss:", loss
