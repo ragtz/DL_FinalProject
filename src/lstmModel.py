@@ -23,7 +23,9 @@ class LSTMModel(object):
             lstm_cell = tf.nn.rnn_cell.BasicLSTMCell(self.config.hidden_size, forget_bias=1.0, state_is_tuple=True)
             self.lstm = tf.nn.rnn_cell.MultiRNNCell([lstm_cell] * self.config.num_layers, state_is_tuple=True)
 
-            outputs, self.lstm_new_state = tf.nn.dynamic_rnn(self.lstm, self.lstm_input.input, dtype=tf.float32)
+            self.initial_state = self.lstm.zero_state(self.config.batch_size, tf.float32)
+
+            outputs, self.lstm_new_state = tf.nn.dynamic_rnn(self.lstm, self.lstm_input.input, initial_state=self.inital_state)
 
             self.rnn_out_W = tf.Variable(tf.random_normal((self.config.hidden_size, self.lstm_input.feature_vector_size), stddev=0.01))
             self.rnn_out_B = tf.Variable(tf.random_normal((self.lstm_input.feature_vector_size,), stddev=0.01))
@@ -40,14 +42,20 @@ class LSTMModel(object):
             self.train_op = tf.train.RMSPropOptimizer(self.config.learning_rate).minimize(self.loss)
 
     def train_epoch(self):
+        state = self.session.run(self.initial_state)
+
+        fetches = {'loss': self.loss, 'train_op': self.train_op}
+
         print "--------------------"
         for i in range(self.lstm_input.epoch_size):
             print "Run Batch", i
 
-            fetches = {'loss': self.loss, 'train_op': self.train_op}
-            self.session.run(fetches)
+            feed_dict = {}
+            print state           
 
-            print "Loss:", fetches['loss']
+            #self.session.run(fetches)
+
+            #print "Loss:", fetches['loss']
 
     def run_step(self):
         pass
