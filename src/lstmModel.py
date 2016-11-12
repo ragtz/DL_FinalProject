@@ -5,6 +5,7 @@ import numpy as np
 class LSTMInput(object):
     def __init__(self, config, data_path, name=None):
         self.data = np.load(data_path)
+        print self.data.shape
         self.batch_size = config.batch_size
         self.num_steps = config.num_steps
         self.feature_vector_size = reader.feature_vector_size(self.data)
