@@ -9,7 +9,6 @@ class LSTMInput(object):
         self.num_steps = config.num_steps
         self.feature_vector_size = reader.feature_vector_size(self.data)
         self.epoch_size = reader.epoch_size(self.data, self.batch_size, self.num_steps)
-        #self.batch_iterator = reader.img_iterator(self.data, self.batch_size, self.num_steps, shuffle=True)
         self.X, self.Y = reader.batch_data_array(self.data, self.batch_size, self.num_steps)
 
 class LSTMModel(object):
@@ -21,11 +20,11 @@ class LSTMModel(object):
         self.lstm_input = lstm_input
 
         with tf.variable_scope(self.scope):
-            lstm_cell = tf.nn.rnn_cell.BasicLSTMCell(self.config.hidden_size, forget_bias=1.0, state_is_tuple=False)
-            self.lstm = tf.nn.rnn_cell.MultiRNNCell([lstm_cell] * self.config.num_layers)
-
             self.xbatch = tf.placeholder(tf.float32, shape=(None, None, self.lstm_input.feature_vector_size), name="xbatch")
             self.initial_state = tf.placeholder(tf.float32, shape=(None, 2*self.config.num_layers*self.config.hidden_size), name="initial_state")
+
+            lstm_cell = tf.nn.rnn_cell.BasicLSTMCell(self.config.hidden_size, forget_bias=1.0, state_is_tuple=False)
+            self.lstm = tf.nn.rnn_cell.MultiRNNCell([lstm_cell] * self.config.num_layers)
 
             outputs, self.lstm_new_state = tf.nn.dynamic_rnn(self.lstm, self.xbatch, initial_state=self.initial_state)
 
