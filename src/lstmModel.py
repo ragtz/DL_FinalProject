@@ -24,7 +24,8 @@ class LSTMModel(object):
             self.lstm = tf.nn.rnn_cell.MultiRNNCell([lstm_cell] * self.config.num_layers, state_is_tuple=True)
 
             self.xbatch = tf.placeholder(tf.float32, shape=(None, None, self.lstm_input.feature_vector_size), name="xbatch")
-            self.initial_state = self.lstm.zero_state(self.config.batch_size, tf.float32)
+            self.initial_state = tf.placeholder(tf.float32, shape=(None, None, 2*self.config.num_layers*self.config.hidden_size), name="initial_state")
+            #self.initial_state = self.lstm.zero_state(self.config.batch_size, tf.float32)
 
             #outputs, self.lstm_new_state = tf.nn.dynamic_rnn(self.lstm, self.lstm_input.input, initial_state=self.initial_state)
             outputs, self.lstm_new_state = tf.nn.dynamic_rnn(self.lstm, self.xbatch, initial_state=self.initial_state)
@@ -48,7 +49,8 @@ class LSTMModel(object):
 
     def train_batch(self):
         xbatch, ybatch = self.session.run([self.lstm_input.input, self.lstm_input.targets])
-        loss, _ = self.session.run([self.loss, self.train_op], feed_dict={self.xbatch: xbatch, self.ybatch: ybatch})
+        initial_state = np.zeros((xbatch.shape[0], 2*self.config.num_layers*self.config.hidden_size))
+        loss, _ = self.session.run([self.loss, self.train_op], feed_dict={self.xbatch: xbatch, self.ybatch: ybatch, self.initial_state: initial_state})
         return loss
 
     def train_epoch(self):
