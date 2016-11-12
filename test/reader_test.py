@@ -264,7 +264,7 @@ class ImgReaderTest(tf.test.TestCase):
 
     def testRealImg(self):
         data = np.load('../data/test/test.npy')
-        batch_size = 256
+        batch_size = 15
         num_steps = 32
         epoch_size = reader.epoch_size(data, batch_size, num_steps)
 
