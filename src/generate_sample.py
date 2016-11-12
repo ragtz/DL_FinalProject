@@ -27,7 +27,7 @@ def main(argv):
     for i in range(FLAGS.num_samples):
         samples.append([np.zeros(lstm_input.feature_vector_size)])
         for j in range(FLAGS.sample_length):
-            out = lstm_model.run_step(samples[i][-1], False)
+            out = lstm_model.run_step([samples[i][-1]], False)
             samples[i].append(out)
 
     np.save(FLAGS.samples)
