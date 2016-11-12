@@ -48,6 +48,7 @@ class LSTMModel(object):
             self.train_op = tf.train.RMSPropOptimizer(self.config.learning_rate).minimize(self.loss)
 
     def train_batch(self):
+        print "Read image"
         xbatch, ybatch = self.session.run([self.lstm_input.input, self.lstm_input.targets])
         print xbatch
         print ybatch
