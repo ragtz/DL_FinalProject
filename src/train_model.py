@@ -22,7 +22,7 @@ def main(argv):
     #print "Train epoch:", lstm_input.epoch_size, "batches of size", lstm_input.feature_vector_size, "x", lstm_input.num_steps
     lstm_model.train()
 
-    saver.save(sess, FLAGS.name + '.ckpt')
+    saver.save(session, FLAGS.name + '.ckpt')
 
     session.close()
 
