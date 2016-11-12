@@ -266,6 +266,7 @@ class ImgReaderTest(tf.test.TestCase):
         data = np.load('../data/test/test.npy')
         batch_size = 256
         num_steps = 32
+        epoch_size = reader.epoch_size(data, batch_size, num_steps)
 
         x, y = reader.img_producer(data, batch_size, num_steps)
 
@@ -274,7 +275,8 @@ class ImgReaderTest(tf.test.TestCase):
             threads = tf.train.start_queue_runners(session, coord=coord)
 
             try:
-                for i in range(reader.epoch_size(data, batch_size, num_steps)):
+                print epoch_size
+                for i in range(epoch_size):
                     xval, yval = session.run([x, y])
                     print "Batch", i
 
