@@ -19,6 +19,8 @@ class LSTMModel(object):
         self.config = config
         self.lstm_input = lstm_input
 
+        self.lstm_last_state = np.zeros((2*self.config.num_layers*self.config.hidden_size,))
+
         with tf.variable_scope(self.scope):
             self.xbatch = tf.placeholder(tf.float32, shape=(None, None, self.lstm_input.feature_vector_size), name="xbatch")
             self.initial_state = tf.placeholder(tf.float32, shape=(None, 2*self.config.num_layers*self.config.hidden_size), name="initial_state")
@@ -33,6 +35,9 @@ class LSTMModel(object):
 
             outputs_reshaped = tf.reshape(outputs, [-1, self.config.hidden_size])
             network_output = (tf.matmul(outputs_reshaped, self.rnn_out_W) + self.rnn_out_B)
+
+            batch_time_shape = tf.shape(outputs)
+            self.final_outputs = tf.reshape(network_output, (batch_time_shape[0], batch_time_shape[1], self.config.feature_vector_size))
 
             self.ybatch = tf.placeholder(tf.float32, (None, None, self.lstm_input.feature_vector_size))
             ybatch_reshaped = tf.reshape(self.ybatch, [-1, self.lstm_input.feature_vector_size])
@@ -56,6 +61,15 @@ class LSTMModel(object):
             loss = self.train_epoch()
             print "Epoch " + str(i) + ": " + str(loss)
 
-    def run_step(self):
-        pass
+    def run_step(self, x, init_zero_state=True):
+        if init_zero_state:
+            init_value = np.zeros(((2*self.config.num_layers*self.config.hidden_size,))
+        else:
+            init_value = self.lstm_last_state
+
+        out, next_lstm_state = self.session.run([self.final_outputs, self.lstm_new_state], feed_dict={self.xbatch: [x], self.initial_state: [init_value]})
+
+        self.lstm_last_state = next_lstm_state[0]
+
+        return out[0][0]
 
