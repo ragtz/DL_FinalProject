@@ -261,7 +261,7 @@ class ImgReaderTest(tf.test.TestCase):
             finally:
                 coord.request_stop()
                 coord.join(threads)
-
+    '''
     def testRealImg(self):
         data = np.load('../data/spectrograms/spectrograms.npy')
         batch_size = 256
@@ -283,6 +283,7 @@ class ImgReaderTest(tf.test.TestCase):
             finally:
                 coord.request_stop()
                 coord.join(threads)
+    '''
 
 if __name__ == '__main__':
     tf.test.main()
