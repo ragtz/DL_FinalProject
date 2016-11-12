@@ -8,6 +8,7 @@ FLAGS = tf.app.flags.FLAGS
 
 def main(argv):
     session = tf.Session()
+    session.run(tf.initialize_all_variables())
 
     print "Load input"
     lstm_input = LSTMInput(config.configs[FLAGS.model], FLAGS.data)

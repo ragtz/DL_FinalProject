@@ -42,7 +42,7 @@ class LSTMModel(object):
             self.train_op = tf.train.RMSPropOptimizer(self.config.learning_rate).minimize(self.loss)
 
     def train_epoch(self):
-        state = self.session.run(self.initial_state)
+        #state = self.session.run(self.initial_state)
 
         fetches = {'loss': self.loss, 'train_op': self.train_op}
 
@@ -50,8 +50,8 @@ class LSTMModel(object):
         for i in range(self.lstm_input.epoch_size):
             print "Run Batch", i
 
-            feed_dict = {}
-            print state           
+            #feed_dict = {}
+            #print state           
 
             #self.session.run(fetches)
 
