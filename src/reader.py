@@ -78,12 +78,12 @@ def img_iterator(raw_data, batch_size, num_steps, shuffle=False):
     X, Y = batch_data_array(raw_data, batch_size, num_steps)
 
     if shuffle:
-        for i in np.random.permutation(epoch_size):
+        for i in np.random.permutation(es):
             x = X[i,:,:,:]
             y = Y[i,:,:,:]
             yield (x, y)
     else:
-        for i in range(epoch_size):
+        for i in range(es):
             x = X[i,:,:,:]
             y = Y[i,:,:,:]
             yield (x, y)
