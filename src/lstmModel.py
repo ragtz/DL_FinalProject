@@ -49,8 +49,11 @@ class LSTMModel(object):
 
     def train_batch(self):
         xbatch, ybatch = self.session.run([self.lstm_input.input, self.lstm_input.targets])
-        initial_state = np.zeros((xbatch.shape[0], 2*self.config.num_layers*self.config.hidden_size))
-        loss, _ = self.session.run([self.loss, self.train_op], feed_dict={self.xbatch: xbatch, self.ybatch: ybatch, self.initial_state: initial_state})
+        print xbatch
+        print ybatch
+        print
+        #initial_state = np.zeros((xbatch.shape[0], 2*self.config.num_layers*self.config.hidden_size))
+        #loss, _ = self.session.run([self.loss, self.train_op], feed_dict={self.xbatch: xbatch, self.ybatch: ybatch, self.initial_state: initial_state})
         return loss
 
     def train_epoch(self):
