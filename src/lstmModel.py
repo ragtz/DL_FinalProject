@@ -63,7 +63,7 @@ class LSTMModel(object):
 
     def run_step(self, x, init_zero_state=True):
         if init_zero_state:
-            init_value = np.zeros(((2*self.config.num_layers*self.config.hidden_size,))
+            init_value = np.zeros((2*self.config.num_layers*self.config.hidden_size,))
         else:
             init_value = self.lstm_last_state
 
