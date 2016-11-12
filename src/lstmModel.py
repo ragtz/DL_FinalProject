@@ -43,8 +43,11 @@ class LSTMModel(object):
         print "--------------------"
         for i in range(self.lstm_input.epoch_size):
             print "Run Batch", i
-            self.session.run([self.train_op])
-            print "Loss:", self.loss
+
+            fetches = {'loss': self.loss, 'train_op': self.train_op}
+            self.session.run(fetches)
+
+            print "Loss:", fetches['loss']
 
     def run_step(self):
         pass
