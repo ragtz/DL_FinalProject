@@ -260,7 +260,27 @@ class ImgReaderTest(tf.test.TestCase):
                                             [14,14]]])
             finally:
                 coord.request_stop()
-                coord.join(threads)    
+                coord.join(threads)
+
+    def testRealImg(self):
+        data = np.load('../data/test/test.npy')
+        batch_size = 256
+        num_steps = 32
+
+        x, y = reader.img_producer(data, batch_size, num_steps)
+
+        with self.test_session() as session:
+            coord = tf.train.Coordinator()
+            threads = tf.train.start_queue_runners(session, coord=coord)
+
+            try:
+                for i in range(reader.epoch_size(data, batch_size, num_steps)):
+                    xval, yval = session.run([x, y])
+                    print "Batch", i
+
+            finally:
+                coord.request_stop()
+                coord.join(threads)
 
 if __name__ == '__main__':
     tf.test.main()
