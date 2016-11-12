@@ -22,7 +22,7 @@ class LSTMModel(object):
             lstm_cell = tf.nn.rnn_cell.BasicLSTMCell(self.config.hidden_size, forget_bias=1.0, state_is_tuple=True)
             self.lstm = tf.nn.rnn_cell.MultiRNNCell([lstm_cell] * self.config.num_layers, state_is_tuple=True)
 
-            output, self.lstm_new_state = tf.nn.dynamic_rnn(self.lstm, self.lstm_input.input, dtype=tf.int32)
+            output, self.lstm_new_state = tf.nn.dynamic_rnn(self.lstm, self.lstm_input.input, dtype=tf.float32)
 
             self.loss = tf.reduce_mean(tf.nn.l2_loss(output, self.lstm_input.targets))
             self.train_op = tf.train.GradientDescentOptimizer(self.config.learning_rate).minimize(self.loss)
