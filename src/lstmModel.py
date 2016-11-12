@@ -5,7 +5,6 @@ import numpy as np
 class LSTMInput(object):
     def __init__(self, config, data_path, name=None):
         self.data = np.load(data_path)
-        print self.data.shape
         self.batch_size = config.batch_size
         self.num_steps = config.num_steps
         self.feature_vector_size = reader.feature_vector_size(self.data)
@@ -51,8 +50,8 @@ class LSTMModel(object):
     def train_batch(self):
         print "Read image"
         xbatch, ybatch = self.session.run([self.lstm_input.input, self.lstm_input.targets])
-        print xbatch
-        print ybatch
+        print xbatch.shape
+        print ybatch.shape
         print
         #initial_state = np.zeros((xbatch.shape[0], 2*self.config.num_layers*self.config.hidden_size))
         #loss, _ = self.session.run([self.loss, self.train_op], feed_dict={self.xbatch: xbatch, self.ybatch: ybatch, self.initial_state: initial_state})
