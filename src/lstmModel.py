@@ -57,16 +57,14 @@ class LSTMModel(object):
         return loss
 
     def train(self, filename=None):
+        losses = []
+        for i in range(self.config.max_epoch):
+            loss = self.train_epoch()
+            losses.append([i, loss])
+            print "Epoch " + str(i) + ": " + str(loss)
+
         if filename != None:
-            losses = []
-            for i in range(self.config.max_epoch):
-                loss = self.train_epoch()
-                losses.append([i, loss])
             np.savetxt(filename, np.array(losses), delimiter=',')
-        else:
-            for i in range(self.config.max_epoch):
-                loss = self.train_epoch()
-                print "Epoch " + str(i) + ": " + str(loss)
             
     def run_step(self, x, init_zero_state=True):
         if init_zero_state:
