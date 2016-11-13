@@ -5,6 +5,7 @@ import tensorflow as tf
 tf.app.flags.DEFINE_string('config', 'test', 'Model config')
 tf.app.flags.DEFINE_string('data', None, 'Data numpy file')
 tf.app.flags.DEFINE_string('name', None, 'Name of saved model')
+tf.app.flags.DEFINE_string('losses', None, 'Losses file')
 FLAGS = tf.app.flags.FLAGS
 
 def main(argv):
@@ -20,7 +21,7 @@ def main(argv):
     saver = tf.train.Saver(tf.all_variables())
 
     #print "Train epoch:", lstm_input.epoch_size, "batches of size", lstm_input.feature_vector_size, "x", lstm_input.num_steps
-    lstm_model.train()
+    lstm_model.train(FLAGS.losses)
 
     saver.save(session, FLAGS.name + '.ckpt')
 
