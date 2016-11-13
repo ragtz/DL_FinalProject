@@ -56,15 +56,20 @@ class LSTMModel(object):
             loss = self.train_batch(x, y)
         return loss
 
-    def train(self, filename=None):
+    def train(self, saver=None, model_file=None, losses_file=None, save_iter=None):
         losses = []
+
         for i in range(self.config.max_epoch):
             loss = self.train_epoch()
             losses.append([i, loss])
             print "Epoch " + str(i) + ": " + str(loss)
 
-        if filename != None:
-            np.savetxt(filename, np.array(losses), delimiter=',')
+            if save_iter != None and i%save_iter == 0:
+                if losses_file != None:
+                    np.savetxt(filename, np.array(losses), delimiter=',')
+
+                if saver != None and model_file != None:
+                    saver.save(self.session, model_file + str(i/save_iter) + '.ckpt')
             
     def run_step(self, x, init_zero_state=True):
         if init_zero_state:
