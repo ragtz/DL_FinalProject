@@ -33,7 +33,7 @@ def main(argv):
         samples.append([])
         for j in range(FLAGS.sample_length):
             #out = lstm_model.run_step([samples[i][-1]], False)
-            out = lstm_model.run_step(out, False)
+            out = lstm_model.run_step([out], False)
             samples[i].append(255*out)
 
     np.save(FLAGS.samples, samples)
