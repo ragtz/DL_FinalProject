@@ -66,7 +66,7 @@ class LSTMModel(object):
 
             if save_iter != None and i%save_iter == 0:
                 if losses_file != None:
-                    np.savetxt(losses_file np.array(losses), delimiter=',')
+                    np.savetxt(losses_file, np.array(losses), delimiter=',')
 
                 if saver != None and model_file != None:
                     saver.save(self.session, model_file + str(i/save_iter) + '.ckpt')
