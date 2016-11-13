@@ -25,7 +25,7 @@ def main(argv):
 
     X = lstm_input.data[0].T/255.0
     for i in range(X.shape[0]):
-        out = lstm_model.run_step(X[i,:], False)
+        out = lstm_model.run_step([X[i,:]], False)
 
     samples = []
     for i in range(FLAGS.num_samples):
