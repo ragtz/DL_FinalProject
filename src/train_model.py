@@ -26,6 +26,7 @@ def main(argv):
     #print "Train epoch:", lstm_input.epoch_size, "batches of size", lstm_input.feature_vector_size, "x", lstm_input.num_steps
     lstm_model.train(saver, FLAGS.model, FLAGS.losses, FLAGS.save_iter)
 
+    saver.save(session, FLAGS.name + '_final.ckpt')
     #saver.save(session, FLAGS.name + '.ckpt')
 
     session.close()
