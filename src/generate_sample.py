@@ -23,7 +23,7 @@ def main(argv):
     saver = tf.train.Saver(tf.all_variables())
     saver.restore(session, FLAGS.model)
 
-    X = lstm_input.data[0].T/255.0
+    X = (lstm_input.data[0].T - 127.5)/255.0
     for i in range(X.shape[0]):
         out = lstm_model.run_step([X[i,:]], False)
 
@@ -34,7 +34,7 @@ def main(argv):
         for j in range(FLAGS.sample_length):
             #out = lstm_model.run_step([samples[i][-1]], False)
             out = lstm_model.run_step([out], False)
-            samples[i].append(255*out)
+            samples[i].append(255*(out + 127.5))
 
     np.save(FLAGS.samples, samples)
 
