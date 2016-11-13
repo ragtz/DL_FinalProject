@@ -23,18 +23,20 @@ def main(argv):
     saver = tf.train.Saver(tf.all_variables())
     saver.restore(session, FLAGS.model)
 
-    X = (lstm_input.data[0].T - 127.5)/255.0
+    '''
+    X = lstm_input.data[0].T
     for i in range(X.shape[0]):
         out = lstm_model.run_step([X[i,:]], False)
+    '''
 
     samples = []
     for i in range(FLAGS.num_samples):
-        #samples.append([np.zeros(lstm_input.feature_vector_size)])
-        samples.append([])
+        samples.append([np.zeros(lstm_input.feature_vector_size)])
+        #samples.append([])
         for j in range(FLAGS.sample_length):
-            #out = lstm_model.run_step([samples[i][-1]], False)
-            out = lstm_model.run_step([out], False)
-            samples[i].append(255*(out + 127.5))
+            out = lstm_model.run_step([samples[i][-1]], False)
+            #out = lstm_model.run_step([out], False)
+            samples[i].append(out)
 
     np.save(FLAGS.samples, samples)
 
