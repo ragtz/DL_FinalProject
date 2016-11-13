@@ -23,6 +23,9 @@ def main(argv):
     saver = tf.train.Saver(tf.all_variables())
     saver.restore(session, FLAGS.model)
 
+    X = lstm_input.data[0]/255.0
+    print X.shape
+
     samples = []
     for i in range(FLAGS.num_samples):
         samples.append([np.zeros(lstm_input.feature_vector_size)])
