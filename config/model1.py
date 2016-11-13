@@ -1,6 +1,6 @@
 
 class ModelOneLSTMConfig(object):
-    learning_rate = 0.01
+    learning_rate = 0.001
     decay = 0.9
     momentum = 0
     hidden_size = 256
