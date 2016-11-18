@@ -106,7 +106,7 @@ class LSTMGANModel(object):
         d_loss, _ = self.session.run([self.d_loss, self.train_d], feed_dict={self.xbatch: xbatch, self.ybatch: ybatch, self.initial_state: initial_state})
 
         # train generator
-        g_loss, _ = self.session.run([self.g_loss, self.train_g], feed_dict={self.xbatch: xbatch, self.ybatch: ybatch, self.initial_state: initial_state})
+        #g_loss, _ = self.session.run([self.g_loss, self.train_g], feed_dict={self.xbatch: xbatch, self.ybatch: ybatch, self.initial_state: initial_state})
         
         return d_loss, g_loss
 
