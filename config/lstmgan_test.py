@@ -11,6 +11,8 @@ class LSTMGANTestConfig(object):
     lstm_size = 512
     num_layers = 3
 
+    fc_size = 4096
+
     batch_size = 8
     width = 50
 
