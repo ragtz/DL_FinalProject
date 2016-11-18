@@ -99,11 +99,12 @@ class LSTMGANModel(object):
         return network_output, final_outputs, lstm_new_state
 
     def train_batch(self, xbatch, ybatch):
+        initial_state = np.zeros((self.config.batch_size, 2*self.config.num_layers*self.config.lstm_size))
+        
         # train discriminator
-        d_loss, _ = self.session.run([self.d_loss, self.train_d], feed_dict={self.xbatch: xbatch, self.ybatch: ybatch})
+        d_loss, _ = self.session.run([self.d_loss, self.train_d], feed_dict={self.xbatch: xbatch, self.ybatch: ybatch, self.initial_state: initial_state})
 
         # train generator
-        initial_state = np.zeros((self.config.batch_size, 2*self.config.num_layers*self.config.lstm_size))
         g_loss, _ = self.session.run([self.g_loss, self.train_g], feed_dict={self.xbatch: xbatch, self.ybatch: ybatch, self.initial_state: initial_state})
         
         return d_loss, g_loss
