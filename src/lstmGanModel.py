@@ -48,7 +48,7 @@ class LSTMGANModel(object):
         self.train_g = tf.train.RMSPropOptimizer(self.config.g_learning_rate, decay=self.config.g_decay, momentum=self.config.g_momentum).minimize(self.g_loss, var_list=g_params)
 
     def discriminator(self, xbatch):
-        print xbatch.get_shape()
+        print xbatch.eval().get_shape()
         xbatch_reshaped = tf.reshape(xbatch, [-1, self.config.width, self.lstmgan_input.feature_vector_size, 1])
 
         conv1_shape = [5,5,1,32]
@@ -78,7 +78,7 @@ class LSTMGANModel(object):
         fc2_W = tf.Variable(tf.random_normal(fc2_shape, stddev=0.01))
         fc2_B = tf.Variable(tf.random_normal((fc2_shape[-1],), stddev=0.01))
         fc2 = tf.nn.relu(tf.matmul(tf.reshape(fc1, [-1, fc2_shape[0]]), fc2_W) + fc2_B)
-
+        print "Done"
         return fc2
 
     def generator(self, xbatch, initial_state):
