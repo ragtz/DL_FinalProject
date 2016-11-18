@@ -12,6 +12,6 @@ class LSTMGANTestConfig(object):
     num_layers = 3
 
     batch_size = 8
-    width = 10
+    width = 50
 
     max_epoch = 5
