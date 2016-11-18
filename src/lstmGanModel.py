@@ -106,7 +106,7 @@ class LSTMGANModel(object):
         initial_state = np.zeros((self.config.batch_size, 2*self.config.num_layers*self.config.lstm_size))
         
         # train discriminator
-        d_loss, _, d1_outputs, d2_outputs = self.session.run([self.d_loss, self.train_d, self.d1_ouputs, self.d2_outputs], feed_dict={self.xbatch: xbatch, self.ybatch: ybatch, self.initial_state: initial_state})
+        d_loss, _, d1_outputs, d2_outputs = self.session.run([self.d_loss, self.train_d, self.d1_outputs, self.d2_outputs], feed_dict={self.xbatch: xbatch, self.ybatch: ybatch, self.initial_state: initial_state})
 
         # train generator
         #g_loss, _ = self.session.run([self.g_loss, self.train_g], feed_dict={self.xbatch: xbatch, self.ybatch: ybatch, self.initial_state: initial_state})
