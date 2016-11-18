@@ -96,7 +96,7 @@ class LSTMGANModel(object):
 
         final_outputs = tf.reshape(network_output, (batch_time_shape[0], batch_time_shape[1], self.lstmgan_input.feature_vector_size))
 
-        return network_output, final_ouputs, lstm_new_state
+        return network_output, final_outputs, lstm_new_state
 
     def train_batch(self, xbatch, ybatch):
         # train discriminator
