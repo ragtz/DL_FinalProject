@@ -50,27 +50,27 @@ class LSTMGANModel(object):
     def discriminator(self, xbatch):
         xbatch_reshaped = tf.reshape(xbatch, [-1, self.config.width, self.lstmgan_input.feature_vector_size, 1])
 
-        conv1_shape = [5,5,1,32]
+        conv1_shape = [5,5,1,16]
         conv1_W = tf.Variable(tf.random_normal(conv1_shape, stddev=0.01))
         conv1_B = tf.Variable(tf.random_normal((conv1_shape[-1],), stddev=0.01))
         conv1 = tf.nn.relu(tf.nn.conv2d(xbatch_reshaped, conv1_W, strides=[1,1,1,1], padding='SAME') + conv1_B)
-        conv1_P = tf.nn.max_pool(conv1, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME')
+        conv1_P = tf.nn.max_pool(conv1, ksize=[1, 4, 4, 1], strides=[1, 4, 4, 1], padding='SAME')
 
-        conv2_shape = [5,5,32,64]
+        conv2_shape = [5,5,16,32]
         conv2_W = tf.Variable(tf.random_normal(conv2_shape, stddev=0.01))
         conv2_B = tf.Variable(tf.random_normal((conv2_shape[-1],), stddev=0.01))
         conv2 = tf.nn.relu(tf.nn.conv2d(conv1_P, conv2_W, strides=[1,1,1,1], padding='SAME') + conv2_B)
-        conv2_P = tf.nn.max_pool(conv2, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME')
+        conv2_P = tf.nn.max_pool(conv2, ksize=[1, 4, 4, 1], strides=[1, 4, 4, 1], padding='SAME')
 
-        conv3_shape = [5,5,64,128]
+        conv3_shape = [5,5,32,64]
         conv3_W = tf.Variable(tf.random_normal(conv3_shape, stddev=0.01))
         conv3_B = tf.Variable(tf.random_normal((conv3_shape[-1],), stddev=0.01))
         conv3 = tf.nn.relu(tf.nn.conv2d(conv2_P, conv3_W, strides=[1,1,1,1], padding='SAME') + conv3_B)
-        conv3_P = tf.nn.max_pool(conv3, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME')
+        conv3_P = tf.nn.max_pool(conv3, ksize=[1, 4, 4, 1], strides=[1, 4, 4, 1], padding='SAME')
 
-        w = int(np.ceil(np.ceil(np.ceil(self.config.width/2)/2)/2))
-        h = int(np.ceil(np.ceil(np.ceil(self.lstmgan_input.feature_vector_size/2)/2)/2))
-        fc1_shape = [w*h*128, self.config.fc_size]
+        w = int(np.ceil(np.ceil(np.ceil(self.config.width/4)/4)/4))
+        h = int(np.ceil(np.ceil(np.ceil(self.lstmgan_input.feature_vector_size/4)/4)/4))
+        fc1_shape = [w*h*64, self.config.fc_size]
         fc1_W = tf.Variable(tf.random_normal(fc1_shape, stddev=0.01))
         fc1_B = tf.Variable(tf.random_normal((fc1_shape[-1],), stddev=0.01))
         fc1 = tf.nn.relu(tf.matmul(tf.reshape(conv3_P, [-1, fc1_shape[0]]), fc1_W) + fc1_B)
