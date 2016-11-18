@@ -1,4 +1,4 @@
-from DL_FinalProject.src.lstmModel import *
+from DL_FinalProject.src.lstmGanModel import *
 import DL_FinalProject.config.config as config
 import tensorflow as tf
 
