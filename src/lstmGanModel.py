@@ -63,7 +63,6 @@ class LSTMGANModel(object):
         conv2_P = tf.nn.max_pool(conv2, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME')
 
         conv3_shape = [5,5,64,128]
-        conv3_shape = [5,5,32,64]
         conv3_W = tf.Variable(tf.random_normal(conv3_shape, stddev=0.01))
         conv3_B = tf.Variable(tf.random_normal(conv3_shape[-1], stddev=0.01))
         conv3 = tf.nn.relu(tf.nn.conv2d(conv2_P, conv3_W, strides=[1,1,1,1], padding='SAME') + conv3_B)
