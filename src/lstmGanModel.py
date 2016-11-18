@@ -55,20 +55,20 @@ class LSTMGANModel(object):
         conv1_B = tf.Variable(tf.random_normal(conv1_shape[-1], stddev=0.01))
         conv1 = tf.nn.relu(tf.nn.conv2d(xbatch_reshaped, conv1_W, strides=[1,1,1,1], padding='SAME') + conv1_B)
         conv1_P = tf.nn.max_pool(conv1, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME')
-		
+
         conv2_shape = [5,5,32,64]
-		conv2_W = tf.Variable(tf.random_normal(conv2_shape, stddev=0.01))
+        conv2_W = tf.Variable(tf.random_normal(conv2_shape, stddev=0.01))
         conv2_B = tf.Variable(tf.random_normal(conv2_shape[-1], stddev=0.01))
         conv2 = tf.nn.relu(tf.nn.conv2d(conv1_P, conv2_W, strides=[1,1,1,1], padding='SAME') + conv2_B)
         conv2_P = tf.nn.max_pool(conv2, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME')
-		
+
         conv3_shape = [5,5,64,128]
-		conv3_shape = [5,5,32,64]
-		conv3_W = tf.Variable(tf.random_normal(conv3_shape, stddev=0.01))
+        conv3_shape = [5,5,32,64]
+        conv3_W = tf.Variable(tf.random_normal(conv3_shape, stddev=0.01))
         conv3_B = tf.Variable(tf.random_normal(conv3_shape[-1], stddev=0.01))
         conv3 = tf.nn.relu(tf.nn.conv2d(conv2_P, conv3_W, strides=[1,1,1,1], padding='SAME') + conv3_B)
         conv3_P = tf.nn.max_pool(conv3, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME')
-		
+
         fc1_shape = [7*7*64, 1024]
         fc1_W = tf.Variable(tf.random_normal(fc1_shape, stddev=0.01))
         fc1_B = tf.Variable(tf.random_normal(fc1_shape[-1], stddev=0.01))
