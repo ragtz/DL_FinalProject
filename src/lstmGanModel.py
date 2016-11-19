@@ -123,7 +123,7 @@ class LSTMGANModel(object):
     def train_epoch(self):
         for i in np.random.permutation(self.lstmgan_input.epoch_size):
             x, y = reader.get_batch(self.lstmgan_input.X, self.lstmgan_input.Y, i)
-            d_loss, g_loss, d1_ouptuts, d2_outputs = self.train_batch(x, y)
+            d_loss, g_loss, d1_outputs, d2_outputs = self.train_batch(x, y)
         return d_loss, g_loss, d1_outputs, d2_outputs
 
     def train(self):
