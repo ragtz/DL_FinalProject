@@ -36,7 +36,7 @@ class LSTMGANModel(object):
             # discriminator generated samples
             self.d2_outputs = self.discriminator(tf.clip_by_value(self.g_outputs, 0, 1))
 
-        self.d_loss = -(tf.reduce_mean(tf.log(self.d1_outputs) + tf.log(1 - self.d2_outputs)))
+        self.d_loss = -(tf.log(0) + tf.log(0))#-(tf.reduce_mean(tf.log(self.d1_outputs) + tf.log(1 - self.d2_outputs)))
         #self.g_loss = tf.reduce_mean(tf.log(1 - self.d2_outputs) + tf.nn.l2_loss(tf.sub(tf.slice(self.d2_outputs), tf.slice(self.ybatch))))
         self.g_loss = tf.reduce_mean(tf.nn.l2_loss(tf.sub(g_network_output, ybatch_reshaped)))
 
@@ -118,7 +118,7 @@ class LSTMGANModel(object):
 
         #print d1_outputs[:8], d2_outputs[:8]
         
-        return d_loss, g_loss
+        return d_loss, g_loss#, d1_outputs, d2_outputs
 
     def train_epoch(self):
         for i in np.random.permutation(self.lstmgan_input.epoch_size):
@@ -133,7 +133,7 @@ class LSTMGANModel(object):
             losses.append([i, d_loss, g_loss])
             print "Epoch " + str(i) + ": " + str(d_loss) + ", " + str(g_loss)
 
-        np.savetxt('test_losses.csv', np.array(losses), delimiter=',')
+        #np.savetxt('test_losses.csv', np.array(losses), delimiter=',')
 
     def run_step(self):
         if init_zero_state:
