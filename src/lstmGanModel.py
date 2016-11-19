@@ -113,8 +113,8 @@ class LSTMGANModel(object):
         d_loss, _, d1_outputs, d2_outputs = self.session.run([self.d_loss, self.train_d, self.d1_outputs, self.d2_outputs], feed_dict={self.xbatch: xbatch, self.ybatch: ybatch, self.initial_state: initial_state})
 
         # train generator
-        #g_loss, _ = self.session.run([self.g_loss, self.train_g], feed_dict={self.xbatch: xbatch, self.ybatch: ybatch, self.initial_state: initial_state})
-        g_loss = 0
+        g_loss, _ = self.session.run([self.g_loss, self.train_g], feed_dict={self.xbatch: xbatch, self.ybatch: ybatch, self.initial_state: initial_state})
+        #g_loss = 0
 
         #print d1_outputs[:8], d2_outputs[:8]
         
@@ -127,10 +127,13 @@ class LSTMGANModel(object):
         return d_loss, g_loss
 
     def train(self):
+        losses = []
         for i in range(self.config.max_epoch):
             d_loss, g_loss = self.train_epoch()
-            #print "Epoch " + str(i) + ": " + str(d_loss) + ", " + str(g_loss)
-            print str(i) + ", " + str(d_loss) + ", " + str(g_loss)
+            losses.append([i, d_loss, g_loss])
+            print "Epoch " + str(i) + ": " + str(d_loss) + ", " + str(g_loss)
+
+        np.savetxt('test_losses.csv', np.array(losses), delimiter=',')
 
     def run_step(self):
         if init_zero_state:
