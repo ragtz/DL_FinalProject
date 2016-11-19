@@ -26,7 +26,7 @@ class LSTMGANModel(object):
 
         with tf.variable_scope(self.scope):
             # discriminator real samples
-            self.d1_outputs = self.discriminator(self.xbatch)
+            self.d1_outputs, self.d1_presig = self.discriminator(self.xbatch)
             self.d_params_num = len(tf.trainable_variables())
             
             # generator
@@ -34,7 +34,7 @@ class LSTMGANModel(object):
 
         with tf.variable_scope(self.scope, reuse=True):
             # discriminator generated samples
-            self.d2_outputs = self.discriminator(tf.clip_by_value(self.g_outputs, 0, 1))
+            self.d2_outputs, self.d2_presig = self.discriminator(tf.clip_by_value(self.g_outputs, 0, 1))
 
         self.d_loss = -(tf.reduce_mean(tf.log(self.d1_outputs) + tf.log(1 - self.d2_outputs)))
         #self.g_loss = tf.reduce_mean(tf.log(1 - self.d2_outputs) + tf.nn.l2_loss(tf.sub(tf.slice(self.d2_outputs), tf.slice(self.ybatch))))
@@ -78,6 +78,7 @@ class LSTMGANModel(object):
         fc2_shape = [self.config.fc_size, 1]
         fc2_W = tf.get_variable("fc2_W", fc2_shape, initializer=tf.random_normal_initializer(mean=0.0, stddev=0.01))
         fc2_B = tf.get_variable("fc2_B", (fc2_shape[-1],), initializer=tf.random_normal_initializer(mean=0.0, stddev=0.01))
+        fc2_presig = tf.matmul(tf.reshape(fc1, [-1, fc2_shape[0]]), fc2_W) + fc2_B
         fc2 = tf.sigmoid(tf.matmul(tf.reshape(fc1, [-1, fc2_shape[0]]), fc2_W) + fc2_B)
 
         '''
@@ -86,7 +87,7 @@ class LSTMGANModel(object):
         fc2_B = tf.get_variable("fc2_B", (fc2_shape[-1],), initializer=tf.random_normal_initializer(mean=0.0, stddev=0.01))
         fc2 = tf.sigmoid(tf.matmul(tf.reshape(conv3_P, [-1, fc2_shape[0]]), fc2_W) + fc2_B)
         '''
-        return fc2
+        return fc2, fc2_presig
 
     def generator(self, xbatch, initial_state):
         lstm_cell = tf.nn.rnn_cell.BasicLSTMCell(self.config.lstm_size, forget_bias=1.0, state_is_tuple=False)
@@ -110,7 +111,7 @@ class LSTMGANModel(object):
         initial_state = np.zeros((self.config.batch_size, 2*self.config.num_layers*self.config.lstm_size))
         
         # train discriminator
-        d_loss, _, d1_outputs, d2_outputs = self.session.run([self.d_loss, self.train_d, self.d1_outputs, self.d2_outputs], feed_dict={self.xbatch: xbatch, self.ybatch: ybatch, self.initial_state: initial_state})
+        d_loss, _, d1_outputs, d2_outputs, d1_presig, d2_presig = self.session.run([self.d_loss, self.train_d, self.d1_outputs, self.d2_outputs, self.d1_presig, self.d2_presig], feed_dict={self.xbatch: xbatch, self.ybatch: ybatch, self.initial_state: initial_state})
 
         # train generator
         g_loss, _ = self.session.run([self.g_loss, self.train_g], feed_dict={self.xbatch: xbatch, self.ybatch: ybatch, self.initial_state: initial_state})
@@ -118,20 +119,22 @@ class LSTMGANModel(object):
 
         #print d1_outputs[:8], d2_outputs[:8]
         
-        return d_loss, g_loss, d1_outputs, d2_outputs
+        return d_loss, g_loss, d1_outputs, d2_outputs, d1_presig, d2_presig
 
     def train_epoch(self):
         for i in np.random.permutation(self.lstmgan_input.epoch_size):
             x, y = reader.get_batch(self.lstmgan_input.X, self.lstmgan_input.Y, i)
-            d_loss, g_loss, d1_outputs, d2_outputs = self.train_batch(x, y)
-        return d_loss, g_loss, d1_outputs, d2_outputs
+            d_loss, g_loss, d1_outputs, d2_outputs, d1_presig, d2_presig = self.train_batch(x, y)
+        return d_loss, g_loss, d1_outputs, d2_outputs, d1_presig, d2_presig
 
     def train(self):
         losses = []
         for i in range(self.config.max_epoch):
-            d_loss, g_loss, d1_outputs, d2_outputs = self.train_epoch()
+            d_loss, g_loss, d1_outputs, d2_outputs, d1_presig, d2_presig = self.train_epoch()
             losses.append([i, d_loss, g_loss])
             print "Epoch " + str(i) + ": " + str(d_loss) + ", " + str(g_loss)
+            print d1_presig[:5].T
+            print d2_presig[:5].T
             print d1_outputs[:5].T
             print d2_outputs[:5].T
 
