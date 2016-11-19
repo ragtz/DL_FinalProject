@@ -36,6 +36,8 @@ class LSTMGANModel(object):
             # discriminator generated samples
             self.d2_outputs, self.d2_presig = self.discriminator(tf.clip_by_value(self.g_outputs, 0, 1))
 
+        self.d1_ouputs = np.ones((self.config.batch_size,))
+        self.d2_ouputs = np.ones((self.config.batch_size,))
         self.d_loss = -(tf.reduce_mean(tf.log(self.d1_outputs) + tf.log(1 - self.d2_outputs)))
         #self.g_loss = tf.reduce_mean(tf.log(1 - self.d2_outputs) + tf.nn.l2_loss(tf.sub(tf.slice(self.d2_outputs), tf.slice(self.ybatch))))
         self.g_loss = tf.reduce_mean(tf.nn.l2_loss(tf.sub(g_network_output, ybatch_reshaped)))
@@ -44,8 +46,6 @@ class LSTMGANModel(object):
         d_params = params[:self.d_params_num]
         g_params = params[self.d_params_num:]
 
-        self.d1_ouputs = np.ones((self.config.batch_size,))
-        self.d2_ouputs = np.ones((self.config.batch_size,))
         self.train_d = tf.train.RMSPropOptimizer(self.config.d_learning_rate, decay=self.config.d_decay, momentum=self.config.d_momentum).minimize(self.d_loss, var_list=d_params)
         self.train_g = tf.train.RMSPropOptimizer(self.config.g_learning_rate, decay=self.config.g_decay, momentum=self.config.g_momentum).minimize(self.g_loss, var_list=g_params)
 
