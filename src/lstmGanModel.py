@@ -58,7 +58,7 @@ class LSTMGANModel(object):
     def discriminator(self, xbatch):
         xbatch_reshaped = tf.reshape(xbatch, [-1, self.config.width, self.lstmgan_input.feature_vector_size, 1])
 
-        conv1_shape = [5,5,1,16]
+        conv1_shape = [5,5,1,32]
         #conv1_W = tf.Variable(tf.random_normal(conv1_shape, stddev=0.01))
         #conv1_B = tf.Variable(tf.random_normal((conv1_shape[-1],), stddev=0.01))
         conv1_W = tf.get_variable("conv1_W", conv1_shape, initializer=tf.random_normal_initializer(mean=0.0, stddev=0.01))
@@ -66,7 +66,7 @@ class LSTMGANModel(object):
         conv1 = tf.nn.relu(tf.nn.conv2d(xbatch_reshaped, conv1_W, strides=[1,1,1,1], padding='SAME') + conv1_B)
         conv1_P = tf.nn.max_pool(conv1, ksize=[1, 4, 4, 1], strides=[1, 4, 4, 1], padding='SAME')
 
-        conv2_shape = [5,5,16,32]
+        conv2_shape = [5,5,32,64]
         #conv2_W = tf.Variable(tf.random_normal(conv2_shape, stddev=0.01))
         #conv2_B = tf.Variable(tf.random_normal((conv2_shape[-1],), stddev=0.01))
         conv2_W = tf.get_variable("conv2_W", conv2_shape, initializer=tf.random_normal_initializer(mean=0.0, stddev=0.01))
@@ -74,7 +74,7 @@ class LSTMGANModel(object):
         conv2 = tf.nn.relu(tf.nn.conv2d(conv1_P, conv2_W, strides=[1,1,1,1], padding='SAME') + conv2_B)
         conv2_P = tf.nn.max_pool(conv2, ksize=[1, 4, 4, 1], strides=[1, 4, 4, 1], padding='SAME')
 
-        conv3_shape = [5,5,32,64]
+        conv3_shape = [5,5,64,128]
         #conv3_W = tf.Variable(tf.random_normal(conv3_shape, stddev=0.01))
         #conv3_B = tf.Variable(tf.random_normal((conv3_shape[-1],), stddev=0.01))
         conv3_W = tf.get_variable("conv3_W", conv3_shape, initializer=tf.random_normal_initializer(mean=0.0, stddev=0.01))
@@ -97,7 +97,7 @@ class LSTMGANModel(object):
         #fc2 = tf.matmul(tf.reshape(fc1, [-1, fc2_shape[0]]), fc2_W) + fc2_B
         fc2 = tf.sigmoid(tf.matmul(tf.reshape(fc1, [-1, fc2_shape[0]]), fc2_W) + fc2_B)
         '''
-        fc2_shape = [w*h*64, 1]
+        fc2_shape = [w*h*128, 1]
         #fc2_W = tf.Variable(tf.random_normal(fc2_shape, stddev=0.01))
         #fc2_B = tf.Variable(tf.random_normal((fc2_shape[-1],), stddev=0.01))
         fc2_W = tf.get_variable("fc2_W", fc2_shape, initializer=tf.random_normal_initializer(mean=0.0, stddev=0.01))
