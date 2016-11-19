@@ -84,18 +84,22 @@ class LSTMGANModel(object):
 
         w = int(np.ceil(np.ceil(np.ceil(self.config.width/4)/4)/4))
         h = int(np.ceil(np.ceil(np.ceil(self.lstmgan_input.feature_vector_size/4)/4)/4))
-        '''
-        fc1_shape = [w*h*64, self.config.fc_size]
-        fc1_W = tf.Variable(tf.random_normal(fc1_shape, stddev=0.01))
-        fc1_B = tf.Variable(tf.random_normal((fc1_shape[-1],), stddev=0.01))
+        fc1_shape = [w*h*128, self.config.fc_size]
+        #fc1_W = tf.Variable(tf.random_normal(fc1_shape, stddev=0.01))
+        #fc1_B = tf.Variable(tf.random_normal((fc1_shape[-1],), stddev=0.01))
+        fc1_W = tf.get_variable("fc1_W", fc1_shape, initializer=tf.random_normal_initializer(mean=0.0, stddev=0.01))
+        fc1_B = tf.get_variable("fc1_B", (fc1_shape[-1],), initializer=tf.random_normal_initializer(mean=0.0, stddev=0.01))
         fc1 = tf.nn.relu(tf.matmul(tf.reshape(conv3_P, [-1, fc1_shape[0]]), fc1_W) + fc1_B)
 
         fc2_shape = [self.config.fc_size, 1]
-        fc2_W = tf.Variable(tf.random_normal(fc2_shape, stddev=0.01))
-        fc2_B = tf.Variable(tf.random_normal((fc2_shape[-1],), stddev=0.01))
+        #fc2_W = tf.Variable(tf.random_normal(fc2_shape, stddev=0.01))
+        #fc2_B = tf.Variable(tf.random_normal((fc2_shape[-1],), stddev=0.01))
+        fc2_W = tf.get_variable("fc2_W", fc2_shape, initializer=tf.random_normal_initializer(mean=0.0, stddev=0.01))
+        fc2_B = tf.get_variable("fc2_B", (fc2_shape[-1],), initializer=tf.random_normal_initializer(mean=0.0, stddev=0.01))
         #fc2 = tf.nn.relu(tf.matmul(tf.reshape(fc1, [-1, fc2_shape[0]]), fc2_W) + fc2_B)
         #fc2 = tf.matmul(tf.reshape(fc1, [-1, fc2_shape[0]]), fc2_W) + fc2_B
         fc2 = tf.sigmoid(tf.matmul(tf.reshape(fc1, [-1, fc2_shape[0]]), fc2_W) + fc2_B)
+
         '''
         fc2_shape = [w*h*128, 1]
         #fc2_W = tf.Variable(tf.random_normal(fc2_shape, stddev=0.01))
@@ -103,7 +107,7 @@ class LSTMGANModel(object):
         fc2_W = tf.get_variable("fc2_W", fc2_shape, initializer=tf.random_normal_initializer(mean=0.0, stddev=0.01))
         fc2_B = tf.get_variable("fc2_B", (fc2_shape[-1],), initializer=tf.random_normal_initializer(mean=0.0, stddev=0.01))
         fc2 = tf.sigmoid(tf.matmul(tf.reshape(conv3_P, [-1, fc2_shape[0]]), fc2_W) + fc2_B)
-
+        '''
         return fc2
 
     def generator(self, xbatch, initial_state):
