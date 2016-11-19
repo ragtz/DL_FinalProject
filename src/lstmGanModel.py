@@ -44,7 +44,9 @@ class LSTMGANModel(object):
         d_params = params[:self.d_params_num]
         g_params = params[self.d_params_num:]
 
-        self.train_d = tf.train.RMSPropOptimizer(self.config.d_learning_rate, decay=self.config.d_decay, momentum=self.config.d_momentum, epsilon=1e-8).minimize(self.d_loss, var_list=d_params)
+        self.d1_ouputs = np.ones((self.config.batch_size,))
+        self.d2_ouputs = np.ones((self.config.batch_size,))
+        self.train_d = tf.train.RMSPropOptimizer(self.config.d_learning_rate, decay=self.config.d_decay, momentum=self.config.d_momentum).minimize(self.d_loss, var_list=d_params)
         self.train_g = tf.train.RMSPropOptimizer(self.config.g_learning_rate, decay=self.config.g_decay, momentum=self.config.g_momentum).minimize(self.g_loss, var_list=g_params)
 
     def discriminator(self, xbatch):
