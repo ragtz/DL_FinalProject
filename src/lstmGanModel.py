@@ -28,23 +28,15 @@ class LSTMGANModel(object):
             # discriminator real samples
             self.d1_outputs = self.discriminator(self.xbatch)
             self.d_params_num = len(tf.trainable_variables())
-
-            print len(tf.trainable_variables())
             
             # generator
             g_network_output, self.g_outputs, self.lstm_new_state = self.generator(self.xbatch, self.initial_state)
-
-            print len(tf.trainable_variables())
 
         with tf.variable_scope(self.scope, reuse=True):
             # discriminator generated samples
             self.d2_outputs = self.discriminator(self.g_outputs)
 
-            print len(tf.trainable_variables())
-
         self.d_loss = -(tf.reduce_mean(tf.log(self.d1_outputs) + tf.log(1 - self.d2_outputs)))
-        #self.d_loss = tf.reduce_mean(tf.nn.relu(self.d1_outputs) - self.d1_outputs + tf.log(1.0 + tf.exp(-tf.abs(self.d1_outputs)))) + \
-        #              tf.reduce_mean(tf.nn.relu(self.d2_outputs) + tf.log(1.0 + tf.exp(-tf.abs(self.d2_outputs))))
         #self.g_loss = tf.reduce_mean(tf.log(1 - self.d2_outputs) + tf.nn.l2_loss(tf.sub(tf.slice(self.d2_outputs), tf.slice(self.ybatch))))
         self.g_loss = tf.reduce_mean(tf.nn.l2_loss(tf.sub(g_network_output, ybatch_reshaped)))
 
@@ -59,24 +51,18 @@ class LSTMGANModel(object):
         xbatch_reshaped = tf.reshape(xbatch, [-1, self.config.width, self.lstmgan_input.feature_vector_size, 1])
 
         conv1_shape = [5,5,1,32]
-        #conv1_W = tf.Variable(tf.random_normal(conv1_shape, stddev=0.01))
-        #conv1_B = tf.Variable(tf.random_normal((conv1_shape[-1],), stddev=0.01))
         conv1_W = tf.get_variable("conv1_W", conv1_shape, initializer=tf.random_normal_initializer(mean=0.0, stddev=0.01))
         conv1_B = tf.get_variable("conv1_B", (conv1_shape[-1],), initializer=tf.random_normal_initializer(mean=0.0, stddev=0.01))
         conv1 = tf.nn.relu(tf.nn.conv2d(xbatch_reshaped, conv1_W, strides=[1,1,1,1], padding='SAME') + conv1_B)
         conv1_P = tf.nn.max_pool(conv1, ksize=[1, 4, 4, 1], strides=[1, 4, 4, 1], padding='SAME')
 
         conv2_shape = [5,5,32,64]
-        #conv2_W = tf.Variable(tf.random_normal(conv2_shape, stddev=0.01))
-        #conv2_B = tf.Variable(tf.random_normal((conv2_shape[-1],), stddev=0.01))
         conv2_W = tf.get_variable("conv2_W", conv2_shape, initializer=tf.random_normal_initializer(mean=0.0, stddev=0.01))
         conv2_B = tf.get_variable("conv2_B", (conv2_shape[-1],), initializer=tf.random_normal_initializer(mean=0.0, stddev=0.01))
         conv2 = tf.nn.relu(tf.nn.conv2d(conv1_P, conv2_W, strides=[1,1,1,1], padding='SAME') + conv2_B)
         conv2_P = tf.nn.max_pool(conv2, ksize=[1, 4, 4, 1], strides=[1, 4, 4, 1], padding='SAME')
 
         conv3_shape = [5,5,64,128]
-        #conv3_W = tf.Variable(tf.random_normal(conv3_shape, stddev=0.01))
-        #conv3_B = tf.Variable(tf.random_normal((conv3_shape[-1],), stddev=0.01))
         conv3_W = tf.get_variable("conv3_W", conv3_shape, initializer=tf.random_normal_initializer(mean=0.0, stddev=0.01))
         conv3_B = tf.get_variable("conv3_B", (conv3_shape[-1],), initializer=tf.random_normal_initializer(mean=0.0, stddev=0.01))
         conv3 = tf.nn.relu(tf.nn.conv2d(conv2_P, conv3_W, strides=[1,1,1,1], padding='SAME') + conv3_B)
@@ -85,25 +71,17 @@ class LSTMGANModel(object):
         w = int(np.ceil(np.ceil(np.ceil(self.config.width/4)/4)/4))
         h = int(np.ceil(np.ceil(np.ceil(self.lstmgan_input.feature_vector_size/4)/4)/4))
         fc1_shape = [w*h*128, self.config.fc_size]
-        #fc1_W = tf.Variable(tf.random_normal(fc1_shape, stddev=0.01))
-        #fc1_B = tf.Variable(tf.random_normal((fc1_shape[-1],), stddev=0.01))
         fc1_W = tf.get_variable("fc1_W", fc1_shape, initializer=tf.random_normal_initializer(mean=0.0, stddev=0.01))
         fc1_B = tf.get_variable("fc1_B", (fc1_shape[-1],), initializer=tf.random_normal_initializer(mean=0.0, stddev=0.01))
         fc1 = tf.nn.relu(tf.matmul(tf.reshape(conv3_P, [-1, fc1_shape[0]]), fc1_W) + fc1_B)
 
         fc2_shape = [self.config.fc_size, 1]
-        #fc2_W = tf.Variable(tf.random_normal(fc2_shape, stddev=0.01))
-        #fc2_B = tf.Variable(tf.random_normal((fc2_shape[-1],), stddev=0.01))
         fc2_W = tf.get_variable("fc2_W", fc2_shape, initializer=tf.random_normal_initializer(mean=0.0, stddev=0.01))
         fc2_B = tf.get_variable("fc2_B", (fc2_shape[-1],), initializer=tf.random_normal_initializer(mean=0.0, stddev=0.01))
-        #fc2 = tf.nn.relu(tf.matmul(tf.reshape(fc1, [-1, fc2_shape[0]]), fc2_W) + fc2_B)
-        #fc2 = tf.matmul(tf.reshape(fc1, [-1, fc2_shape[0]]), fc2_W) + fc2_B
         fc2 = tf.sigmoid(tf.matmul(tf.reshape(fc1, [-1, fc2_shape[0]]), fc2_W) + fc2_B)
 
         '''
         fc2_shape = [w*h*128, 1]
-        #fc2_W = tf.Variable(tf.random_normal(fc2_shape, stddev=0.01))
-        #fc2_B = tf.Variable(tf.random_normal((fc2_shape[-1],), stddev=0.01))
         fc2_W = tf.get_variable("fc2_W", fc2_shape, initializer=tf.random_normal_initializer(mean=0.0, stddev=0.01))
         fc2_B = tf.get_variable("fc2_B", (fc2_shape[-1],), initializer=tf.random_normal_initializer(mean=0.0, stddev=0.01))
         fc2 = tf.sigmoid(tf.matmul(tf.reshape(conv3_P, [-1, fc2_shape[0]]), fc2_W) + fc2_B)
@@ -135,10 +113,10 @@ class LSTMGANModel(object):
         d_loss, _, d1_outputs, d2_outputs = self.session.run([self.d_loss, self.train_d, self.d1_outputs, self.d2_outputs], feed_dict={self.xbatch: xbatch, self.ybatch: ybatch, self.initial_state: initial_state})
 
         # train generator
-        #g_loss, _ = self.session.run([self.g_loss, self.train_g], feed_dict={self.xbatch: xbatch, self.ybatch: ybatch, self.initial_state: initial_state})
-        g_loss = 0
+        g_loss, _ = self.session.run([self.g_loss, self.train_g], feed_dict={self.xbatch: xbatch, self.ybatch: ybatch, self.initial_state: initial_state})
+        #g_loss = 0
 
-        print d1_outputs[:8], d2_outputs[:8]
+        #print d1_outputs[:8], d2_outputs[:8]
         
         return d_loss, g_loss
 
@@ -151,7 +129,8 @@ class LSTMGANModel(object):
     def train(self):
         for i in range(self.config.max_epoch):
             d_loss, g_loss = self.train_epoch()
-            print "Epoch " + str(i) + ": " + str(d_loss) + ", " + str(g_loss)
+            #print "Epoch " + str(i) + ": " + str(d_loss) + ", " + str(g_loss)
+            print str(i) + ", " + str(d_loss) + ", " + str(g_loss)
 
     def run_step(self):
         if init_zero_state:
