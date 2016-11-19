@@ -16,4 +16,4 @@ class LSTMGANTestConfig(object):
     batch_size = 64
     width = 200
 
-    max_epoch = 1000
+    max_epoch = 100
