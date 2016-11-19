@@ -36,7 +36,7 @@ class LSTMGANModel(object):
             # discriminator generated samples
             self.d2_outputs = self.discriminator(self.g_outputs)
 
-        self.d_loss = -(tf.reduce_mean(tf.log(self.d1_outputs) + tf.log(1 - self.d2_outputs)))
+        self.d_loss = -(tf.reduce_mean(tf.log(self.d1_outputs) + tf.log(self.d2_outputs)))
         #self.d_loss = tf.reduce_mean(tf.nn.relu(self.d1_outputs) - self.d1_outputs + tf.log(1.0 + tf.exp(-tf.abs(self.d1_outputs)))) + \
         #              tf.reduce_mean(tf.nn.relu(self.d2_outputs) + tf.log(1.0 + tf.exp(-tf.abs(self.d2_outputs))))
         #self.g_loss = tf.reduce_mean(tf.log(1 - self.d2_outputs) + tf.nn.l2_loss(tf.sub(tf.slice(self.d2_outputs), tf.slice(self.ybatch))))
@@ -72,6 +72,7 @@ class LSTMGANModel(object):
 
         w = int(np.ceil(np.ceil(np.ceil(self.config.width/4)/4)/4))
         h = int(np.ceil(np.ceil(np.ceil(self.lstmgan_input.feature_vector_size/4)/4)/4))
+        '''
         fc1_shape = [w*h*64, self.config.fc_size]
         fc1_W = tf.Variable(tf.random_normal(fc1_shape, stddev=0.01))
         fc1_B = tf.Variable(tf.random_normal((fc1_shape[-1],), stddev=0.01))
@@ -88,7 +89,7 @@ class LSTMGANModel(object):
         fc2_W = tf.Variable(tf.random_normal(fc2_shape, stddev=0.01))
         fc2_B = tf.Variable(tf.random_normal((fc2_shape[-1],), stddev=0.01))
         fc2 = tf.sigmoid(tf.matmul(tf.reshape(conv3_P, [-1, fc2_shape[0]]), fc2_W) + fc2_B)
-        '''
+
         return fc2
 
     def generator(self, xbatch, initial_state):
