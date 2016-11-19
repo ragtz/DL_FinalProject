@@ -36,7 +36,7 @@ class LSTMGANModel(object):
             # discriminator generated samples
             self.d2_outputs = self.discriminator(self.g_outputs)
 
-        self.d_loss = tf.reduce_mean(tf.log(self.d1_outputs) + tf.log(1 - self.d2_outputs))
+        self.d_loss = -(tf.reduce_mean(tf.log(self.d1_outputs) + tf.log(1 - self.d2_outputs)))
         #self.d_loss = tf.reduce_mean(tf.nn.relu(self.d1_outputs) - self.d1_outputs + tf.log(1.0 + tf.exp(-tf.abs(self.d1_outputs)))) + \
         #              tf.reduce_mean(tf.nn.relu(self.d2_outputs) + tf.log(1.0 + tf.exp(-tf.abs(self.d2_outputs))))
         #self.g_loss = tf.reduce_mean(tf.log(1 - self.d2_outputs) + tf.nn.l2_loss(tf.sub(tf.slice(self.d2_outputs), tf.slice(self.ybatch))))
@@ -46,7 +46,7 @@ class LSTMGANModel(object):
         d_params = params[:self.d_params_num]
         g_params = params[self.d_params_num:]
 
-        self.train_d = tf.train.RMSPropOptimizer(self.config.d_learning_rate, decay=self.config.d_decay, momentum=self.config.d_momentum).maximize(self.d_loss, var_list=d_params)
+        self.train_d = tf.train.RMSPropOptimizer(self.config.d_learning_rate, decay=self.config.d_decay, momentum=self.config.d_momentum).minimize(self.d_loss, var_list=d_params)
         self.train_g = tf.train.RMSPropOptimizer(self.config.g_learning_rate, decay=self.config.g_decay, momentum=self.config.g_momentum).minimize(self.g_loss, var_list=g_params)
 
     def discriminator(self, xbatch):
