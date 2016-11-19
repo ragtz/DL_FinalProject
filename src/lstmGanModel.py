@@ -80,7 +80,8 @@ class LSTMGANModel(object):
         fc2_shape = [self.config.fc_size, 1]
         fc2_W = tf.Variable(tf.random_normal(fc2_shape, stddev=0.01))
         fc2_B = tf.Variable(tf.random_normal((fc2_shape[-1],), stddev=0.01))
-        fc2 = tf.nn.relu(tf.matmul(tf.reshape(fc1, [-1, fc2_shape[0]]), fc2_W) + fc2_B)
+        #fc2 = tf.nn.relu(tf.matmul(tf.reshape(fc1, [-1, fc2_shape[0]]), fc2_W) + fc2_B)
+        fc2 = tf.matmul(tf.reshape(fc1, [-1, fc2_shape[0]]), fc2_W) + fc2_B
 
         return fc2
 
