@@ -36,7 +36,9 @@ class LSTMGANModel(object):
             # discriminator generated samples
             self.d2_outputs = self.discriminator(tf.clip_by_value(self.g_outputs, 0, 1))
 
-        self.d_loss = -(tf.log(0) + tf.log(0))#-(tf.reduce_mean(tf.log(self.d1_outputs) + tf.log(1 - self.d2_outputs)))
+        self.d1_outputs = np.zeros((batch_size,))
+        self.d2_outputs = np.ones((batch_size,))
+        self.d_loss = -(tf.reduce_mean(tf.log(self.d1_outputs) + tf.log(1 - self.d2_outputs)))
         #self.g_loss = tf.reduce_mean(tf.log(1 - self.d2_outputs) + tf.nn.l2_loss(tf.sub(tf.slice(self.d2_outputs), tf.slice(self.ybatch))))
         self.g_loss = tf.reduce_mean(tf.nn.l2_loss(tf.sub(g_network_output, ybatch_reshaped)))
 
