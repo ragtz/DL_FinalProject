@@ -88,7 +88,7 @@ class LSTMGANModel(object):
         fc2_shape = [w*h*64, 1]
         fc2_W = tf.Variable(tf.random_normal(fc2_shape, stddev=0.01))
         fc2_B = tf.Variable(tf.random_normal((fc2_shape[-1],), stddev=0.01))
-        fc2 = tf.sigmoid(tf.matmul(tf.reshape(conv3_P, [-1, fc1_shape[0]]), fc2_W) + fc2_B)
+        fc2 = tf.sigmoid(tf.matmul(tf.reshape(conv3_P, [-1, fc2_shape[0]]), fc2_W) + fc2_B)
 
         return fc2
 
