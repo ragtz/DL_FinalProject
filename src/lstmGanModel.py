@@ -28,13 +28,19 @@ class LSTMGANModel(object):
             # discriminator real samples
             self.d1_outputs = self.discriminator(self.xbatch)
             self.d_params_num = len(tf.trainable_variables())
+
+            print len(tf.trainable_variables())
             
             # generator
             g_network_output, self.g_outputs, self.lstm_new_state = self.generator(self.xbatch, self.initial_state)
 
+            print len(tf.trainable_variables())
+
         with tf.variable_scope(self.scope, reuse=True):
             # discriminator generated samples
             self.d2_outputs = self.discriminator(self.g_outputs)
+
+            print len(tf.trainable_variables())
 
         self.d_loss = -(tf.reduce_mean(tf.log(self.d1_outputs)))# + tf.log(1 - self.d2_outputs)))
         #self.d_loss = tf.reduce_mean(tf.nn.relu(self.d1_outputs) - self.d1_outputs + tf.log(1.0 + tf.exp(-tf.abs(self.d1_outputs)))) + \
