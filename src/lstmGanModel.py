@@ -44,7 +44,7 @@ class LSTMGANModel(object):
         d_params = params[:self.d_params_num]
         g_params = params[self.d_params_num:]
 
-        self.train_d = tf.train.RMSPropOptimizer(self.config.d_learning_rate, decay=self.config.d_decay, momentum=self.config.d_momentum, epsilon=1e-5).minimize(self.d_loss, var_list=d_params)
+        self.train_d = tf.train.RMSPropOptimizer(self.config.d_learning_rate, decay=self.config.d_decay, momentum=self.config.d_momentum, epsilon=1e-8).minimize(self.d_loss, var_list=d_params)
         self.train_g = tf.train.RMSPropOptimizer(self.config.g_learning_rate, decay=self.config.g_decay, momentum=self.config.g_momentum).minimize(self.g_loss, var_list=g_params)
 
     def discriminator(self, xbatch):
@@ -133,8 +133,8 @@ class LSTMGANModel(object):
             d_loss, g_loss, d1_outputs, d2_outputs, d1_presig, d2_presig = self.train_epoch()
             losses.append([i, d_loss, g_loss])
             print "Epoch " + str(i) + ": " + str(d_loss) + ", " + str(g_loss)
-            print d1_presig[:5].T
-            print d2_presig[:5].T
+            #print d1_presig[:5].T
+            #print d2_presig[:5].T
             print d1_outputs[:5].T
             print d2_outputs[:5].T
 
