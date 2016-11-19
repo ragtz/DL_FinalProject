@@ -36,8 +36,6 @@ class LSTMGANModel(object):
             # discriminator generated samples
             self.d2_outputs = self.discriminator(tf.clip_by_value(self.g_outputs, 0, 1))
 
-        self.d1_outputs = np.ones((self.config.batch_size,))
-        self.d2_outputs = np.zeros((self.config.batch_size,))
         self.d_loss = -(tf.reduce_mean(tf.log(self.d1_outputs) + tf.log(1 - self.d2_outputs)))
         #self.g_loss = tf.reduce_mean(tf.log(1 - self.d2_outputs) + tf.nn.l2_loss(tf.sub(tf.slice(self.d2_outputs), tf.slice(self.ybatch))))
         self.g_loss = tf.reduce_mean(tf.nn.l2_loss(tf.sub(g_network_output, ybatch_reshaped)))
@@ -120,7 +118,7 @@ class LSTMGANModel(object):
 
         #print d1_outputs[:8], d2_outputs[:8]
         
-        return d_loss, g_loss#, d1_outputs, d2_outputs
+        return d_loss, g_loss, d1_outputs, d2_outputs
 
     def train_epoch(self):
         for i in np.random.permutation(self.lstmgan_input.epoch_size):
@@ -131,9 +129,11 @@ class LSTMGANModel(object):
     def train(self):
         losses = []
         for i in range(self.config.max_epoch):
-            d_loss, g_loss = self.train_epoch()
+            d_loss, g_loss, d1_outputs, d2_outputs = self.train_epoch()
             losses.append([i, d_loss, g_loss])
             print "Epoch " + str(i) + ": " + str(d_loss) + ", " + str(g_loss)
+            print d1_outputs[:5].T
+            print d2_outputs[:5].T
 
         #np.savetxt('test_losses.csv', np.array(losses), delimiter=',')
 
