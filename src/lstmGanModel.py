@@ -168,7 +168,7 @@ class LSTMGANModel(object):
         for i in np.random.permutation(self.lstmgan_input.epoch_size):
             x, y = reader.get_batch(self.lstmgan_input.X, self.lstmgan_input.Y, i)
             d_loss, g_loss, d1_outputs, d2_outputs, losses, var_names, var_norms, grad_norms, d1_labels, d2_labels = self.train_batch(x, y, losses, var_names, var_norms, grad_norms, d1_labels, d2_labels)
-        return d_loss, g_loss, d1_outputs, d2_outputs, losses, var_names, var_norms, grad_norms, mean_labels
+        return d_loss, g_loss, d1_outputs, d2_outputs, losses, var_names, var_norms, grad_norms, d1_labels, d2_labels
 
     def train(self):
         losses = []
