@@ -45,9 +45,9 @@ class LSTMGANModel(object):
         g_params = params[self.d_params_num:]
 
         opt = tf.train.RMSPropOptimizer(self.config.d_learning_rate, decay=self.config.d_decay, momentum=self.config.d_momentum)
-        grads, _ = opt.compute_gradients(self.d_loss, var_list=d_params)
-        self.grad_norm = tf.global_norm(grads)
-        self.train_d = opt.apply_gradients(grads, dparams)
+        grads_and_vars = opt.compute_gradients(self.d_loss, var_list=d_params)
+        self.grad_norm = tf.global_norm(grads_and_vars[:,0])
+        self.train_d = opt.apply_gradients(grads_and_vars)
 
         #self.train_d = tf.train.RMSPropOptimizer(self.config.d_learning_rate, decay=self.config.d_decay, momentum=self.config.d_momentum).minimize(self.d_loss, var_list=d_params)
         self.train_g = tf.train.RMSPropOptimizer(self.config.g_learning_rate, decay=self.config.g_decay, momentum=self.config.g_momentum).minimize(self.g_loss, var_list=g_params)
