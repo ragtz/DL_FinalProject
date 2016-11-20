@@ -53,9 +53,9 @@ class LSTMGANModel(object):
         self.summary = tf.merge_all_summaries()
         self.train_writer = tf.train.SummaryWriter('test_summary', self.session.graph)
 
-        self.var_names = [v.name for _, v in grads_and_vars]
-        self.var_norms = [tf.nn.l2_loss(v) for _, v in grads_and_vars]
-        self.grad_norms = [tf.nn.l2_loss(g) for g, _ in grads_and_vars]
+        self.var_names = np.array([v.name for _, v in grads_and_vars])
+        self.var_norms = np.array([tf.nn.l2_loss(v) for _, v in grads_and_vars])
+        self.grad_norms = np.array([tf.nn.l2_loss(g) for g, _ in grads_and_vars])
 
         self.grad_norm = tf.global_norm([gv[0] for gv in grads_and_vars])
         self.train_d = opt.apply_gradients(grads_and_vars)
