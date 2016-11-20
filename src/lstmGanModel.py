@@ -132,7 +132,7 @@ class LSTMGANModel(object):
 
         return network_output, final_outputs, lstm_new_state
 
-    def train_batch(self, xbatch, ybatch):
+    def train_batch(self, xbatch, ybatch, losses, var_names, var_norms, grad_norms):
         initial_state = np.zeros((self.config.batch_size, 2*self.config.num_layers*self.config.lstm_size))
         
         # train discriminator
@@ -145,18 +145,18 @@ class LSTMGANModel(object):
         #g_loss = 0
 
         #print d1_outputs[:8], d2_outputs[:8]
-        '''
+        
         losses.append([d_loss, g_loss])
         var_names.append(v_ns)
         var_norms.append(v_nms)
         grad_norms.append(g_nms)
-        '''
-        return d_loss, g_loss, d1_outputs, d2_outputs
+        
+        return d_loss, g_loss, d1_outputs, d2_outputs, losses, var_names, var_norms, grad_norms
 
-    def train_epoch(self):
+    def train_epoch(self, losses, var_names, var_norms, grad_norms):
         for i in np.random.permutation(self.lstmgan_input.epoch_size):
             x, y = reader.get_batch(self.lstmgan_input.X, self.lstmgan_input.Y, i)
-            d_loss, g_loss, d1_outputs, d2_outputs = self.train_batch(x, y)
+            d_loss, g_loss, d1_outputs, d2_outputs, losses, var_names, var_norms, grad_norms = self.train_batch(x, y, losses, var_names, var_norms, grad_norms)
         return d_loss, g_loss, d1_outputs, d2_outputs
 
     def train(self):
@@ -165,17 +165,17 @@ class LSTMGANModel(object):
         var_norms = []
         grad_norms = []
         for i in range(self.config.max_epoch):
-            d_loss, g_loss, d1_outputs, d2_outputs = self.train_epoch()
+            d_loss, g_loss, d1_outputs, d2_outputs, losses, var_names, var_norms, grad_norms = self.train_epoch(losses, var_names, var_norms, grad_norms)
             #losses.append([i, d_loss, g_loss])
             print "Epoch " + str(i) + ": " + str(d_loss) + ", " + str(g_loss)
             print d1_outputs[:5].T
             print d2_outputs[:5].T
-            '''
+            
             np.savetxt('test_losses.csv', np.array(losses), delimiter=',')
             np.savetxt('test_var_names.csv', np.array(var_names), delimiter=',')
             np.savetxt('test_var_norms.csv', np.array(var_norms), delimiter=',')
             np.savetxt('test_grad_norms.csv', np.array(grad_norms), delimiter=',')
-            '''
+            
         #np.savetxt('test_losses.csv', np.array(losses), delimiter=',')
 
     def run_step(self):
