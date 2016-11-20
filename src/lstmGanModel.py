@@ -64,13 +64,13 @@ class LSTMGANModel(object):
         self.train_g = tf.train.RMSPropOptimizer(self.config.g_learning_rate, decay=self.config.g_decay, momentum=self.config.g_momentum).minimize(self.g_loss, var_list=g_params)
 
     def get_var_names(self, gv):
-        return [v.name for _, v in gv]
+        return tf.concat(0, [v.name for _, v in gv])
 
     def get_var_norms(self, gv):
-        return [tf.nn.l2_loss(v) for _, v in gv]
+        return tf.concat(0, [tf.nn.l2_loss(v) for _, v in gv])
 
     def get_grad_norms(self, gv):
-        return [tf.nn.l2_loss(g) for g, _ in gv]
+        return tf.concat(0, [tf.nn.l2_loss(g) for g, _ in gv])
 
     def discriminator(self, xbatch):
         xbatch_reshaped = tf.reshape(xbatch, [-1, self.config.width, self.lstmgan_input.feature_vector_size, 1])
