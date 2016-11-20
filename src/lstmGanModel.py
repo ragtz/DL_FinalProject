@@ -53,15 +53,24 @@ class LSTMGANModel(object):
         self.summary = tf.merge_all_summaries()
         self.train_writer = tf.train.SummaryWriter('test_summary', self.session.graph)
         
-        self.var_names = tf.Variable([v.name for _, v in grads_and_vars], trainable=False)
-        self.var_norms = tf.Variable([tf.nn.l2_loss(v) for _, v in grads_and_vars], trainable=False)
-        self.grad_norms = tf.Variable([tf.nn.l2_loss(g) for g, _ in grads_and_vars], trainable=False)
+        self.var_names = self.get_var_names(grads_and_vars)
+        self.var_norms = self.get_var_norms(grads_and_vars)
+        self.grad_norms = self.get_grad_norms(grads_and_vars)
         
         self.grad_norm = tf.global_norm([gv[0] for gv in grads_and_vars])
         self.train_d = opt.apply_gradients(grads_and_vars)
 
         #self.train_d = tf.train.RMSPropOptimizer(self.config.d_learning_rate, decay=self.config.d_decay, momentum=self.config.d_momentum).minimize(self.d_loss, var_list=d_params)
         self.train_g = tf.train.RMSPropOptimizer(self.config.g_learning_rate, decay=self.config.g_decay, momentum=self.config.g_momentum).minimize(self.g_loss, var_list=g_params)
+
+    def get_var_names(self, gv):
+        return [v.name for _, v in gv]
+
+    def get_var_norms(self, gv):
+        return [tf.nn.l2_loss(v) for _, v in gv]
+
+    def get_grad_norms(self, gv):
+        return [tf.nn.l2_losses(g) for g, _ in gv]
 
     def discriminator(self, xbatch):
         xbatch_reshaped = tf.reshape(xbatch, [-1, self.config.width, self.lstmgan_input.feature_vector_size, 1])
