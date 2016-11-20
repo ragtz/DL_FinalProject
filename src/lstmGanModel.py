@@ -156,7 +156,7 @@ class LSTMGANModel(object):
         var_norms = []
         grad_norms = []
         for i in range(self.config.max_epoch):
-            d_loss, g_loss, d1_outputs, d2_outputs = self.train_epoch(losses, var_names, var_norms, grad_norms)
+            d_loss, g_loss, d1_outputs, d2_outputs = self.train_epoch()
             #losses.append([i, d_loss, g_loss])
             print "Epoch " + str(i) + ": " + str(d_loss) + ", " + str(g_loss)
             print d1_outputs[:5].T
