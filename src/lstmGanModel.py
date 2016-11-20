@@ -53,6 +53,10 @@ class LSTMGANModel(object):
         self.summary = tf.merge_all_summaries()
         self.train_writer = tf.train.SummaryWriter('test_summary', self.session.graph)
 
+        self.var_names = [v.name for _, v in grads_and_vars]
+        self.var_norms = [tf.nn.l2_loss(v) for _, v in grads_and_vars]
+        self.grad_norms = [tf.l2_loss(g) for g, _ in grads_and_vars]
+
         self.grad_norm = tf.global_norm([gv[0] for gv in grads_and_vars])
         self.train_d = opt.apply_gradients(grads_and_vars)
 
@@ -119,11 +123,11 @@ class LSTMGANModel(object):
 
         return network_output, final_outputs, lstm_new_state
 
-    def train_batch(self, xbatch, ybatch):
+    def train_batch(self, xbatch, ybatch, losses, var_names, var_norms, grad_norms):
         initial_state = np.zeros((self.config.batch_size, 2*self.config.num_layers*self.config.lstm_size))
         
         # train discriminator
-        d_loss, _, d1_outputs, d2_outputs, d1_presig, d2_presig, grad_norm, summary = self.session.run([self.d_loss, self.train_d, self.d1_outputs, self.d2_outputs, self.d1_presig, self.d2_presig, self.grad_norm, self.summary], feed_dict={self.xbatch: xbatch, self.ybatch: ybatch, self.initial_state: initial_state})
+        d_loss, _, d1_outputs, d2_outputs, summary, v_ns, v_nms, g_nms = self.session.run([self.d_loss, self.train_d, self.d1_outputs, self.d2_outputs, self.summary, self.var_names, self.var_norms, self.grad_norms], feed_dict={self.xbatch: xbatch, self.ybatch: ybatch, self.initial_state: initial_state})
 
         self.train_writer.add_summary(summary)
 
@@ -132,26 +136,36 @@ class LSTMGANModel(object):
         #g_loss = 0
 
         #print d1_outputs[:8], d2_outputs[:8]
-        
-        return d_loss, g_loss, d1_outputs, d2_outputs, d1_presig, d2_presig, grad_norm
 
-    def train_epoch(self):
+        losses.append([d_loss, g_loss])
+        var_names.append(v_ns)
+        var_norms.append(v_nms)
+        grad_norms.append(g_nms)
+        
+        return d_loss, g_loss, d1_outputs, d2_outputs, losses, var_names, var_norms, grad_norms
+
+    def train_epoch(self, losses, var_names, var_norms, grad_norms):
         for i in np.random.permutation(self.lstmgan_input.epoch_size):
             x, y = reader.get_batch(self.lstmgan_input.X, self.lstmgan_input.Y, i)
-            d_loss, g_loss, d1_outputs, d2_outputs, d1_presig, d2_presig, grad_norm = self.train_batch(x, y)
-        return d_loss, g_loss, d1_outputs, d2_outputs, d1_presig, d2_presig, grad_norm
+            d_loss, g_loss, d1_outputs, d2_outputs, losses, var_names, var_norms, grad_norms = self.train_batch(x, y, losses, var_names, var_norms, grad_norms)
+        return d_loss, g_loss, d1_outputs, d2_outputs, losses, var_names, var_norms, grad_norms
 
     def train(self):
         losses = []
+        var_names = []
+        var_norms = []
+        grad_norms = []
         for i in range(self.config.max_epoch):
-            d_loss, g_loss, d1_outputs, d2_outputs, d1_presig, d2_presig, grad_norm = self.train_epoch()
-            losses.append([i, d_loss, g_loss])
+            d_loss, g_loss, d1_outputs, d2_outputs, losses, var_names, var_norms, grad_norms = self.train_epoch(losses, var_names, var_norms, grad_norms)
+            #losses.append([i, d_loss, g_loss])
             print "Epoch " + str(i) + ": " + str(d_loss) + ", " + str(g_loss)
-            #print d1_presig[:5].T
-            #print d2_presig[:5].T
             print d1_outputs[:5].T
             print d2_outputs[:5].T
-            print grad_norm
+
+            np.savetxt('test_losses.csv', np.array(losses), delimiter=',')
+            np.savetxt('test_var_names.csv', np.array(var_names), delimiter=',')
+            np.savetxt('test_var_norms.csv', np.array(var_norms), delimiter=',')
+            np.savetxt('test_grad_norms.csv', np.array(grad_norms), delimiter=',')
 
         #np.savetxt('test_losses.csv', np.array(losses), delimiter=',')
 
