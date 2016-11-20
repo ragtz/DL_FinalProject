@@ -172,7 +172,7 @@ class LSTMGANModel(object):
             print d2_outputs[:5].T
             
             np.savetxt('test_losses.csv', np.array(losses), delimiter=',')
-            np.savetxt('test_var_names.csv', np.array(var_names), delimiter=',')
+            #np.savetxt('test_var_names.csv', np.array(var_names), delimiter=',')
             np.savetxt('test_var_norms.csv', np.array(var_norms), delimiter=',')
             np.savetxt('test_grad_norms.csv', np.array(grad_norms), delimiter=',')
             
