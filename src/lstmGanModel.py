@@ -46,6 +46,13 @@ class LSTMGANModel(object):
 
         opt = tf.train.RMSPropOptimizer(self.config.d_learning_rate, decay=self.config.d_decay, momentum=self.config.d_momentum)
         grads_and_vars = opt.compute_gradients(self.d_loss, var_list=d_params)
+
+        for g, v in grads_and_vars:
+            tf.scalar_summary(v.name, tf.nn.l2_loss(v))
+            tf.scalar_summary(v.name + '_grad', tf.nn.l2_loss(g))
+        self.summary = tf.merge_all_summaries()
+        self.train_writer = tf.train.SummaryWriter('test_summary', self.session.graph)
+
         self.grad_norm = tf.global_norm([gv[0] for gv in grads_and_vars])
         self.train_d = opt.apply_gradients(grads_and_vars)
 
@@ -116,7 +123,9 @@ class LSTMGANModel(object):
         initial_state = np.zeros((self.config.batch_size, 2*self.config.num_layers*self.config.lstm_size))
         
         # train discriminator
-        d_loss, _, d1_outputs, d2_outputs, d1_presig, d2_presig, grad_norm = self.session.run([self.d_loss, self.train_d, self.d1_outputs, self.d2_outputs, self.d1_presig, self.d2_presig, self.grad_norm], feed_dict={self.xbatch: xbatch, self.ybatch: ybatch, self.initial_state: initial_state})
+        d_loss, _, d1_outputs, d2_outputs, d1_presig, d2_presig, grad_norm, summary = self.session.run([self.d_loss, self.train_d, self.d1_outputs, self.d2_outputs, self.d1_presig, self.d2_presig, self.grad_norm, self.summary], feed_dict={self.xbatch: xbatch, self.ybatch: ybatch, self.initial_state: initial_state})
+
+        self.train_writer.add_summary(summary)
 
         # train generator
         g_loss, _ = self.session.run([self.g_loss, self.train_g], feed_dict={self.xbatch: xbatch, self.ybatch: ybatch, self.initial_state: initial_state})
