@@ -36,7 +36,7 @@ class LSTMGANModel(object):
             # discriminator generated samples
             self.d2_outputs, self.d2_presig = self.discriminator(tf.clip_by_value(self.g_outputs, 0, 1))
 
-        self.d_loss = tf.clip_by_value(-(tf.reduce_mean(tf.log(self.d1_outputs) + tf.log(1 - self.d2_outputs))), 0, 100)
+        self.d_loss = -(tf.reduce_mean(tf.log(self.d1_outputs) + tf.log(1 - self.d2_outputs)))
         #self.g_loss = tf.reduce_mean(tf.log(1 - self.d2_outputs) + tf.nn.l2_loss(tf.sub(tf.slice(self.d2_outputs), tf.slice(self.ybatch))))
         self.g_loss = tf.reduce_mean(tf.nn.l2_loss(tf.sub(g_network_output, ybatch_reshaped)))
 
@@ -44,7 +44,12 @@ class LSTMGANModel(object):
         d_params = params[:self.d_params_num]
         g_params = params[self.d_params_num:]
 
-        self.train_d = tf.train.RMSPropOptimizer(self.config.d_learning_rate, decay=self.config.d_decay, momentum=self.config.d_momentum).minimize(self.d_loss, var_list=d_params)
+        opt = tf.train.RMSPropOptimizer(self.config.d_learning_rate, decay=self.config.d_decay, momentum=self.config.d_momentum)
+        grads, _ = opt.compute_gradients(self.d_loss, var_list=d_params)
+        self.grad_norm = tf.global_norm(grads)
+        self.train_d = opt.apply_gradients(grads, dparams)
+
+        #self.train_d = tf.train.RMSPropOptimizer(self.config.d_learning_rate, decay=self.config.d_decay, momentum=self.config.d_momentum).minimize(self.d_loss, var_list=d_params)
         self.train_g = tf.train.RMSPropOptimizer(self.config.g_learning_rate, decay=self.config.g_decay, momentum=self.config.g_momentum).minimize(self.g_loss, var_list=g_params)
 
     def discriminator(self, xbatch):
@@ -111,7 +116,7 @@ class LSTMGANModel(object):
         initial_state = np.zeros((self.config.batch_size, 2*self.config.num_layers*self.config.lstm_size))
         
         # train discriminator
-        d_loss, _, d1_outputs, d2_outputs, d1_presig, d2_presig = self.session.run([self.d_loss, self.train_d, self.d1_outputs, self.d2_outputs, self.d1_presig, self.d2_presig], feed_dict={self.xbatch: xbatch, self.ybatch: ybatch, self.initial_state: initial_state})
+        d_loss, _, d1_outputs, d2_outputs, d1_presig, d2_presig, grad_norm = self.session.run([self.d_loss, self.train_d, self.d1_outputs, self.d2_outputs, self.d1_presig, self.d2_presig, self.grad_norm], feed_dict={self.xbatch: xbatch, self.ybatch: ybatch, self.initial_state: initial_state})
 
         # train generator
         g_loss, _ = self.session.run([self.g_loss, self.train_g], feed_dict={self.xbatch: xbatch, self.ybatch: ybatch, self.initial_state: initial_state})
@@ -119,24 +124,25 @@ class LSTMGANModel(object):
 
         #print d1_outputs[:8], d2_outputs[:8]
         
-        return d_loss, g_loss, d1_outputs, d2_outputs, d1_presig, d2_presig
+        return d_loss, g_loss, d1_outputs, d2_outputs, d1_presig, d2_presig, grad_norm
 
     def train_epoch(self):
         for i in np.random.permutation(self.lstmgan_input.epoch_size):
             x, y = reader.get_batch(self.lstmgan_input.X, self.lstmgan_input.Y, i)
-            d_loss, g_loss, d1_outputs, d2_outputs, d1_presig, d2_presig = self.train_batch(x, y)
-        return d_loss, g_loss, d1_outputs, d2_outputs, d1_presig, d2_presig
+            d_loss, g_loss, d1_outputs, d2_outputs, d1_presig, d2_presig, grad_norm = self.train_batch(x, y)
+        return d_loss, g_loss, d1_outputs, d2_outputs, d1_presig, d2_presig, grad_norm
 
     def train(self):
         losses = []
         for i in range(self.config.max_epoch):
-            d_loss, g_loss, d1_outputs, d2_outputs, d1_presig, d2_presig = self.train_epoch()
+            d_loss, g_loss, d1_outputs, d2_outputs, d1_presig, d2_presig, grad_norm = self.train_epoch()
             losses.append([i, d_loss, g_loss])
             print "Epoch " + str(i) + ": " + str(d_loss) + ", " + str(g_loss)
             #print d1_presig[:5].T
             #print d2_presig[:5].T
             print d1_outputs[:5].T
             print d2_outputs[:5].T
+            print grad_norm
 
         #np.savetxt('test_losses.csv', np.array(losses), delimiter=',')
 
