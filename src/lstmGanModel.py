@@ -55,7 +55,7 @@ class LSTMGANModel(object):
 
         self.var_names = [v.name for _, v in grads_and_vars]
         self.var_norms = [tf.nn.l2_loss(v) for _, v in grads_and_vars]
-        self.grad_norms = [tf.l2_loss(g) for g, _ in grads_and_vars]
+        self.grad_norms = [tf.nn.l2_loss(g) for g, _ in grads_and_vars]
 
         self.grad_norm = tf.global_norm([gv[0] for gv in grads_and_vars])
         self.train_d = opt.apply_gradients(grads_and_vars)
