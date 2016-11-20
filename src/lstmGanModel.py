@@ -57,7 +57,7 @@ class LSTMGANModel(object):
         tf.histogram_summary('d1_outputs', self.d1_outputs)
         tf.histogram_summary('d2_outputs', self.d2_outputs)
 
-        tf.image_summary('gen_img', tf.reshape(255*tf.clip_by_value(tf.transpose(self.g_outputs, perm=[0,2,1]), 0, 1), [self.config.batch_size, self.lstmgan_input.feature_vector_size, self.config.width, 1]), max_images=5)
+        #tf.image_summary('gen_img', tf.reshape(255*tf.clip_by_value(tf.transpose(self.g_outputs, perm=[0,2,1]), 0, 1), [self.config.batch_size, self.lstmgan_input.feature_vector_size, self.config.width, 1]), max_images=5)
 
         self.summary = tf.merge_all_summaries()
         self.train_writer = tf.train.SummaryWriter('test_summary', self.session.graph)
