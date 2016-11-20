@@ -70,7 +70,7 @@ class LSTMGANModel(object):
         return [tf.nn.l2_loss(v) for _, v in gv]
 
     def get_grad_norms(self, gv):
-        return [tf.nn.l2_losses(g) for g, _ in gv]
+        return [tf.nn.l2_loss(g) for g, _ in gv]
 
     def discriminator(self, xbatch):
         xbatch_reshaped = tf.reshape(xbatch, [-1, self.config.width, self.lstmgan_input.feature_vector_size, 1])
