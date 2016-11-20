@@ -50,6 +50,15 @@ class LSTMGANModel(object):
         for g, v in grads_and_vars:
             tf.scalar_summary(v.name, tf.nn.l2_loss(v))
             tf.scalar_summary(v.name + '_grad', tf.nn.l2_loss(g))
+
+        tf.scalar_summary('d_loss', self.d_loss)
+        tf.scalar_summary('g_loss', self.g_loss)
+
+        tf.histogram_summary('d1_outputs', self.d1_outputs)
+        tf.histogram_summary('d2_outputs', self.d2_outputs)
+
+        tf.image_summary('gen_img', 255*tf.clip_by_value(self.g_outputs, 0, 1))
+
         self.summary = tf.merge_all_summaries()
         self.train_writer = tf.train.SummaryWriter('test_summary', self.session.graph)
         
@@ -132,7 +141,7 @@ class LSTMGANModel(object):
 
         return network_output, final_outputs, lstm_new_state
 
-    def train_batch(self, xbatch, ybatch, losses, var_names, var_norms, grad_norms):
+    def train_batch(self, xbatch, ybatch, losses, var_names, var_norms, grad_norms, d1_labels, d2_labels):
         initial_state = np.zeros((self.config.batch_size, 2*self.config.num_layers*self.config.lstm_size))
         
         # train discriminator
@@ -150,22 +159,26 @@ class LSTMGANModel(object):
         var_names.append(v_ns)
         var_norms.append(v_nms)
         grad_norms.append(g_nms)
+        d1_labels.append(d1_outputs)
+        d2_labels.append(d2_outputs)
         
-        return d_loss, g_loss, d1_outputs, d2_outputs, losses, var_names, var_norms, grad_norms
+        return d_loss, g_loss, d1_outputs, d2_outputs, losses, var_names, var_norms, grad_norms, d1_labels, d2_labels
 
-    def train_epoch(self, losses, var_names, var_norms, grad_norms):
+    def train_epoch(self, losses, var_names, var_norms, grad_norms, d1_labels, d2_labels):
         for i in np.random.permutation(self.lstmgan_input.epoch_size):
             x, y = reader.get_batch(self.lstmgan_input.X, self.lstmgan_input.Y, i)
-            d_loss, g_loss, d1_outputs, d2_outputs, losses, var_names, var_norms, grad_norms = self.train_batch(x, y, losses, var_names, var_norms, grad_norms)
-        return d_loss, g_loss, d1_outputs, d2_outputs, losses, var_names, var_norms, grad_norms
+            d_loss, g_loss, d1_outputs, d2_outputs, losses, var_names, var_norms, grad_norms, d1_labels, d2_labels = self.train_batch(x, y, losses, var_names, var_norms, grad_norms, d1_labels, d2_labels)
+        return d_loss, g_loss, d1_outputs, d2_outputs, losses, var_names, var_norms, grad_norms, mean_labels
 
     def train(self):
         losses = []
         var_names = []
         var_norms = []
         grad_norms = []
+        d1_labels = []
+        d2_labels = []
         for i in range(self.config.max_epoch):
-            d_loss, g_loss, d1_outputs, d2_outputs, losses, var_names, var_norms, grad_norms = self.train_epoch(losses, var_names, var_norms, grad_norms)
+            d_loss, g_loss, d1_outputs, d2_outputs, losses, var_names, var_norms, grad_norms, d1_labels, d2_labels = self.train_epoch(losses, var_names, var_norms, grad_norms, d1_labels, d2_labels)
             #losses.append([i, d_loss, g_loss])
             print "Epoch " + str(i) + ": " + str(d_loss) + ", " + str(g_loss)
             print d1_outputs[:5].T
@@ -175,6 +188,8 @@ class LSTMGANModel(object):
             #np.savetxt('test_var_names.csv', np.array(var_names), delimiter=',')
             np.savetxt('test_var_norms.csv', np.array(var_norms), delimiter=',')
             np.savetxt('test_grad_norms.csv', np.array(grad_norms), delimiter=',')
+            np.savetxt('test_d1_labels.csv', np.array(d1_labels), delimiter=',')
+            np.savetxt('test_d2_labels.csv', np.array(d2_labels), delimiter=',')
             
         #np.savetxt('test_losses.csv', np.array(losses), delimiter=',')
 
