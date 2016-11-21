@@ -22,7 +22,8 @@ class LSTMGANModel(object):
         
         self.xbatch = tf.placeholder(tf.float32, shape=(None, self.config.width, self.lstmgan_input.feature_vector_size), name="xbatch")
         self.ybatch = tf.placeholder(tf.float32, shape=(None, self.config.width, self.lstmgan_input.feature_vector_size), name="ybatch")
-        ybatch_reshaped = tf.reshape(self.ybatch, [-1, self.lstmgan_input.feature_vector_size])
+        #ybatch_reshaped = tf.reshape(self.ybatch, [-1, self.lstmgan_input.feature_vector_size])
+        ybatch_reshaped = tf.reshape(self.ybatch[:,self.config.width/2,:], [-1, self.lstmgan_input.feature_vector_size])
 
         with tf.variable_scope(self.scope):
             # discriminator real samples
@@ -31,14 +32,15 @@ class LSTMGANModel(object):
             
             # generator
             g_network_output, self.g_outputs, self.lstm_new_state = self.generator(self.xbatch, self.initial_state)
+            g_outputs_reshaped = tf.reshape(self.g_outputs[:,self.config.width/2,:], [-1, self.lstmgan_input.feature_vector_size])
 
         with tf.variable_scope(self.scope, reuse=True):
             # discriminator generated samples
             self.d2_outputs, self.d2_presig = self.discriminator(tf.clip_by_value(self.g_outputs, 0, 1))
 
         self.d_loss = -(tf.reduce_mean(tf.log(self.d1_outputs) + tf.log(1 - self.d2_outputs)))
-        #self.g_loss = tf.reduce_mean(tf.log(1 - self.d2_outputs) + tf.nn.l2_loss(tf.sub(tf.slice(self.d2_outputs), tf.slice(self.ybatch))))
-        self.g_loss = tf.reduce_mean(tf.nn.l2_loss(tf.sub(g_network_output, ybatch_reshaped)))
+        self.g_loss = tf.reduce_mean(tf.log(1 - self.d2_outputs) + tf.nn.l2_loss(tf.sub(g_outputs_reshaped, ybatch_reshaped)))
+        #self.g_loss = tf.reduce_mean(tf.nn.l2_loss(tf.sub(g_network_output, ybatch_reshaped)))
 
         params = tf.trainable_variables()
         d_params = params[:self.d_params_num]
@@ -60,7 +62,7 @@ class LSTMGANModel(object):
         tf.image_summary('gen_img', tf.reshape(255*tf.clip_by_value(tf.transpose(self.g_outputs, perm=[0,2,1]), 0, 1), [self.config.batch_size, self.lstmgan_input.feature_vector_size, self.config.width, 1]), max_images=5)
 
         self.summary = tf.merge_all_summaries()
-        self.train_writer = tf.train.SummaryWriter('test_summary', self.session.graph)
+        self.train_writer = tf.train.SummaryWriter('test_summary_adv', self.session.graph)
         
         self.var_names = self.get_var_names(grads_and_vars)
         self.var_norms = self.get_var_norms(grads_and_vars)
@@ -184,12 +186,12 @@ class LSTMGANModel(object):
             print d1_outputs[:5].T
             print d2_outputs[:5].T
             
-            np.savetxt('test_losses.csv', np.array(losses), delimiter=',')
+            np.savetxt('test_losses_adv.csv', np.array(losses), delimiter=',')
             #np.savetxt('test_var_names.csv', np.array(var_names), delimiter=',')
-            np.savetxt('test_var_norms.csv', np.array(var_norms), delimiter=',')
-            np.savetxt('test_grad_norms.csv', np.array(grad_norms), delimiter=',')
-            np.savetxt('test_d1_labels.csv', np.array(d1_labels), delimiter=',')
-            np.savetxt('test_d2_labels.csv', np.array(d2_labels), delimiter=',')
+            np.savetxt('test_var_norms_adv.csv', np.array(var_norms), delimiter=',')
+            np.savetxt('test_grad_norms_adv.csv', np.array(grad_norms), delimiter=',')
+            np.savetxt('test_d1_labels_adv.csv', np.array(d1_labels), delimiter=',')
+            np.savetxt('test_d2_labels_adv.csv', np.array(d2_labels), delimiter=',')
             
         #np.savetxt('test_losses.csv', np.array(losses), delimiter=',')
 
