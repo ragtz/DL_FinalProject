@@ -23,7 +23,7 @@ class LSTMGANModel(object):
         self.xbatch = tf.placeholder(tf.float32, shape=(None, self.config.width, self.lstmgan_input.feature_vector_size), name="xbatch")
         self.ybatch = tf.placeholder(tf.float32, shape=(None, self.config.width, self.lstmgan_input.feature_vector_size), name="ybatch")
         #ybatch_reshaped = tf.reshape(self.ybatch, [-1, self.lstmgan_input.feature_vector_size])
-        ybatch_reshaped = tf.reshape(self.ybatch[:,self.config.width-1,:], [-1, self.lstmgan_input.feature_vector_size])
+        ybatch_reshaped = tf.reshape(self.ybatch[:,self.config.width/2:,:], [-1, self.lstmgan_input.feature_vector_size])
 
         with tf.variable_scope(self.scope):
             # discriminator real samples
@@ -32,7 +32,7 @@ class LSTMGANModel(object):
             
             # generator
             g_network_output, self.g_outputs, self.lstm_new_state = self.generator(self.xbatch, self.initial_state)
-            g_outputs_reshaped = tf.reshape(self.g_outputs[:,self.config.width-1,:], [-1, self.lstmgan_input.feature_vector_size])
+            g_outputs_reshaped = tf.reshape(self.g_outputs[:,self.config.width/2:,:], [-1, self.lstmgan_input.feature_vector_size])
 
         with tf.variable_scope(self.scope, reuse=True):
             # discriminator generated samples
