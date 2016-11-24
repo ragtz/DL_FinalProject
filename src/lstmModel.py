@@ -89,7 +89,7 @@ class LSTMModel(object):
     def test(self):
         X = self.lstm_input.test_X
         Y = self.lstm_input.test_Y
-        initial_state = np.zeros((self.config.test_size, 2*self.config.num_layers*self.config.hidden_size))
+        initial_state = np.zeros((self.lstm_input.test_size, 2*self.config.num_layers*self.config.hidden_size))
         next_lstm_state = self.session.run([self.lstm_new_state], feed_dict = {self.xbatch: X, self.initial_state: initial_state})
 
         out = X[:,-1,:]
