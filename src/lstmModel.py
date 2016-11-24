@@ -3,23 +3,29 @@ import tensorflow as tf
 import numpy as np
 
 class LSTMInput(object):
-    def __init__(self, config, data_path, name=None):
-        self.data = np.load(data_path)
+    def __init__(self, config, train_data_path, test_data_path, name=None):
+        self.data = np.load(train_data_path)
+        self.test_data = np.load(test_data_path)
         self.batch_size = config.batch_size
         self.num_steps = config.num_steps
+        self.test_num_steps = config.test_num_steps
         self.feature_vector_size = reader.feature_vector_size(self.data)
         self.epoch_size = reader.epoch_size(self.data, self.batch_size, self.num_steps)
         self.X, self.Y = reader.batch_data_array(self.data, self.batch_size, self.num_steps)
+        self.test_X, self.test_Y = reader.get_test_arrays(self.test_data, self.test_num_steps)
+        self.test_size = self.test_X.shape[0]
 
 class LSTMModel(object):
-    def __init__(self, config, lstm_input, session, name="lstm_model"):
+    def __init__(self, config, lstm_input, session, summary_dir, name="lstm_model"):
         self.scope = name
         self.session = session
+        self.summary_dir = summary_dir
 
         self.config = config
         self.lstm_input = lstm_input
 
         self.lstm_last_state = np.zeros((2*self.config.num_layers*self.config.hidden_size,))
+        #self.lstm_last_state = tf.placeholder(tf.float32, shape=(None, 2*self.config.num_layers*self.config.hidden_size), name="last_state")
 
         with tf.variable_scope(self.scope):
             self.xbatch = tf.placeholder(tf.float32, shape=(None, None, self.lstm_input.feature_vector_size), name="xbatch")
@@ -45,6 +51,17 @@ class LSTMModel(object):
             self.loss = tf.reduce_mean(tf.nn.l2_loss(tf.sub(network_output, ybatch_reshaped)))
             self.train_op = tf.train.RMSPropOptimizer(self.config.learning_rate, decay=self.config.decay, momentum=self.config.momentum).minimize(self.loss)
 
+            self.test_loss = self.test()
+
+            # summary data
+            tf.scalar_summary('training_loss', self.loss)
+            tf.scalar_summary('test_loss', self.test_loss)
+            tf.image_summary('train_img', tf.reshape(255*tf.transpose(self.final_outputs, perm=[0,2,1]), [self.config.batch_size, self.lstmgan_input.feature_vector_size, self.config.num_steps, 1]), max_images=10)
+            tf.image_summary('gen_img', tf.reshape(255*tf.clip_by_value(tf.transpose(self.final_outputs, perm=[0,2,1]), 0, 1), [self.config.batch_size, self.lstmgan_input.feature_vector_size, self.config.num_steps, 1]), max_images=10)
+
+            self.summary = tf.merge_all_summaries()
+            self.train_writer = tf.train.SummaryWriter(self.summary_dir, self.session.graph)
+
     def train_batch(self, xbatch, ybatch):
         initial_state = np.zeros((self.config.batch_size, 2*self.config.num_layers*self.config.hidden_size))
         loss, _ = self.session.run([self.loss, self.train_op], feed_dict={self.xbatch: xbatch, self.ybatch: ybatch, self.initial_state: initial_state})
@@ -56,21 +73,36 @@ class LSTMModel(object):
             loss = self.train_batch(x, y)
         return loss
 
-    def train(self, saver=None, model_file=None, losses_file=None, save_iter=None):
-        losses = []
-
+    def train(self, saver=None, model_file=None, save_iter=None, test_iter=None):
         for i in range(self.config.max_epoch):
             loss = self.train_epoch()
-            losses.append([i, loss])
             print "Epoch " + str(i) + ": " + str(loss)
 
             if save_iter != None and i%save_iter == 0:
-                if losses_file != None:
-                    np.savetxt(losses_file + '.csv', np.array(losses), delimiter=',')
-
                 if saver != None and model_file != None:
                     saver.save(self.session, model_file + '_' + str(i/save_iter) + '.ckpt')
-            
+
+            if test_iter != None and i%test_iter == 0:
+                test_loss, summary = self.session.run([self.test_loss, self.summary], feed_dict={})
+                self.train_writer.add_summary(summary)
+
+    def test(self):
+        X = self.lstm_input.test_X
+        Y = self.lstm_input.test_Y
+        initial_state = np.zeros((self.config.test_size, 2*self.config.num_layers*self.config.hidden_size))
+        next_lstm_state = self.session.run([self.lstm_new_state], feed_dict{self.xbatch: X, self.initial_state: initial_state})
+
+        out = X[:,-1,:]
+        gen_Y = np.zeros(Y.shape) # shape = (test_size, num_steps, feature_vector_size)
+        for i in range(gen_Y.shape[1]):
+            out, next_lstm_state = self.session.run([self.final_outputs, self.lstm_new_state], feed_dict={self.xbatch: out, self.initial_state: next_lstm_state})
+            gen_Y[:,i,:] = out
+
+        Y_reshaped = tf.reshape(Y, [-1, self.lstm_input.feature_vector_size])
+        gen_Y_reshaped = tf.reshape(gen_Y, [-1, self.lstm_input.feature_vector_size])
+
+        return tf.reduce_mean(tf.nn.l2_loss(tf.sub(gen_Y_reshaped, Y_reshaped)))
+        
     def run_step(self, x, init_zero_state=True):
         if init_zero_state:
             init_value = np.zeros((2*self.config.num_layers*self.config.hidden_size,))

@@ -76,6 +76,26 @@ def get_batch(X, Y, i):
     y = Y[i,:,:,:]
     return x, y
 
+def get_test_arrays(raw_data, num_steps):
+    N, rows, cols = raw_data.shape
+
+    samples_per_image = cols / num_steps
+    
+    # get all samples
+    X = raw_data[:,:,0:num_steps*samples_per_image]
+    
+    # flatten to 2-D
+    X = np.concatenate([X[i,:,:] for i in range(N)], 1)
+
+    # reshape test samples
+    X = np.reshape(np.transpose(X), [N*samples_per_image, num_steps, rows])
+
+    # divide into history and gen halves
+    Y = X[:,num_steps/2:,:]
+    X = X[:,:num_steps/2,:]
+
+    return X, Y
+
 def img_iterator(raw_data, batch_size, num_steps, shuffle=False):
     N, rows, cols = raw_data.shape
     es = epoch_size(raw_data, batch_size, num_steps)
