@@ -86,7 +86,7 @@ class LSTMModel(object):
 
             if test_iter != None and i%test_iter == 0:
                 test_loss = self.test()
-                summary = self.session.run([self.test_summary], feed_dict={self.test_loss: test_loss})
+                summary = self.session.run(self.test_summary, feed_dict={self.test_loss: test_loss})
                 self.train_writer.add_summary(summary)
 
     def test(self):
