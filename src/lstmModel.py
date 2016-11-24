@@ -90,7 +90,7 @@ class LSTMModel(object):
         X = self.lstm_input.test_X
         Y = self.lstm_input.test_Y
         initial_state = np.zeros((self.config.test_size, 2*self.config.num_layers*self.config.hidden_size))
-        next_lstm_state = self.session.run([self.lstm_new_state], feed_dict{self.xbatch: X, self.initial_state: initial_state})
+        next_lstm_state = self.session.run([self.lstm_new_state], feed_dict = {self.xbatch: X, self.initial_state: initial_state})
 
         out = X[:,-1,:]
         gen_Y = np.zeros(Y.shape) # shape = (test_size, num_steps, feature_vector_size)
