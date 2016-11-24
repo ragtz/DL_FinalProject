@@ -55,16 +55,17 @@ class LSTMModel(object):
 
             # summary data
             tf.scalar_summary('training_loss', self.loss)
-            tf.scalar_summary('test_loss', self.test_loss)
             tf.image_summary('train_img', tf.reshape(255*tf.transpose(self.final_outputs, perm=[0,2,1]), [self.config.batch_size, self.lstm_input.feature_vector_size, self.config.num_steps, 1]), max_images=10)
             tf.image_summary('gen_img', tf.reshape(255*tf.clip_by_value(tf.transpose(self.final_outputs, perm=[0,2,1]), 0, 1), [self.config.batch_size, self.lstm_input.feature_vector_size, self.config.num_steps, 1]), max_images=10)
 
-            self.summary = tf.merge_all_summaries()
+            self.train_summary = tf.merge_all_summaries()
+            self.test_summary = tf.scalar_summary('test_loss', self.test_loss)
+
             self.train_writer = tf.train.SummaryWriter(self.summary_dir, self.session.graph)
 
     def train_batch(self, xbatch, ybatch):
         initial_state = np.zeros((self.config.batch_size, 2*self.config.num_layers*self.config.hidden_size))
-        loss, _, summary = self.session.run([self.loss, self.train_op, self.summary], feed_dict={self.xbatch: xbatch, self.ybatch: ybatch, self.initial_state: initial_state})
+        loss, _, summary = self.session.run([self.loss, self.train_op, self.train_summary], feed_dict={self.xbatch: xbatch, self.ybatch: ybatch, self.initial_state: initial_state})
         self.train_writer.add_summary(summary)
         return loss
 
@@ -85,7 +86,7 @@ class LSTMModel(object):
 
             if test_iter != None and i%test_iter == 0:
                 test_loss = self.test()
-                summary = self.session.run([self.summary], feed_dict={self.test_loss: test_loss})
+                summary = self.session.run([self.test_summary], feed_dict={self.test_loss: test_loss})
                 self.train_writer.add_summary(summary)
 
     def test(self):
