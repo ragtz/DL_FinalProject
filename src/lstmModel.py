@@ -98,6 +98,7 @@ class LSTMModel(object):
         out = np.reshape(X[:,-1,:], [X.shape[0], 1, X.shape[2]])
         gen_Y = np.zeros(Y.shape) # shape = (test_size, num_steps, feature_vector_size)
         for i in range(gen_Y.shape[1]):
+            next_lstm_state = np.array(next_lstm_state)
             print "out shape:", out.shape
             print "next state shape:", next_lstm_state.shape
             out, next_lstm_state = self.session.run([self.final_outputs, self.lstm_new_state], feed_dict={self.xbatch: out, self.initial_state: next_lstm_state[0]})
