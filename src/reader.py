@@ -94,6 +94,9 @@ def get_test_arrays(raw_data, num_steps):
     Y = X[:,num_steps/2:,:]
     X = X[:,:num_steps/2,:]
 
+    print X.shape
+    print Y.shape
+
     return X, Y
 
 def img_iterator(raw_data, batch_size, num_steps, shuffle=False):
