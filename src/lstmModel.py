@@ -104,7 +104,7 @@ class LSTMModel(object):
         Y_reshaped = tf.reshape(Y, [-1, self.lstm_input.feature_vector_size])
         gen_Y_reshaped = tf.reshape(gen_Y, [-1, self.lstm_input.feature_vector_size])
 
-        return tf.reduce_mean(tf.nn.l2_loss(tf.sub(gen_Y_reshaped, Y_reshaped)))
+        return tf.reduce_mean(tf.nn.l2_loss(tf.sub(gen_Y_reshaped, Y_reshaped))).eval(self.session)
         
     def run_step(self, x, init_zero_state=True):
         if init_zero_state:
