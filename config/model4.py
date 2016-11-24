@@ -7,5 +7,6 @@ class ModelFourLSTMConfig(object):
     num_layers = 3
     batch_size = 64
     num_steps = 200
+    test_num_steps = 200
     max_epoch = 1000
 
