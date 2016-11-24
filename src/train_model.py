@@ -26,7 +26,7 @@ def main(argv):
     saver = tf.train.Saver(tf.all_variables(), max_to_keep=1000)
 
     #print "Train epoch:", lstm_input.epoch_size, "batches of size", lstm_input.feature_vector_size, "x", lstm_input.num_steps
-    lstm_model.train(saver, FLAGS.model, FLAGS.losses, FLAGS.save_iter)
+    lstm_model.train(saver, FLAGS.model, FLAGS.save_iter, FLAGS.test_iter)
 
     saver.save(session, FLAGS.model + '_final.ckpt')
     #saver.save(session, FLAGS.name + '.ckpt')
