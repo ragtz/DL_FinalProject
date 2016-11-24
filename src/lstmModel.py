@@ -55,7 +55,7 @@ class LSTMModel(object):
 
             # summary data
             tf.scalar_summary('training_loss', self.loss)
-            tf.image_summary('train_img', tf.reshape(255*tf.transpose(self.final_outputs, perm=[0,2,1]), [self.config.batch_size, self.lstm_input.feature_vector_size, self.config.num_steps, 1]), max_images=10)
+            tf.image_summary('train_img', tf.reshape(255*tf.transpose(self.ybatch, perm=[0,2,1]), [self.config.batch_size, self.lstm_input.feature_vector_size, self.config.num_steps, 1]), max_images=10)
             tf.image_summary('gen_img', tf.reshape(255*tf.clip_by_value(tf.transpose(self.final_outputs, perm=[0,2,1]), 0, 1), [self.config.batch_size, self.lstm_input.feature_vector_size, self.config.num_steps, 1]), max_images=10)
 
             self.train_summary = tf.merge_all_summaries()
