@@ -13,6 +13,7 @@ FLAGS = tf.app.flags.FLAGS
 
 def main(argv):
     FLAGS.save_iter = int(FLAGS.save_iter) if FLAGS.save_iter != None else None
+    FLAGS.test_iter = int(FLAGS.test_iter) if FLAGS.test_iter != None else None
 
     session = tf.Session()
 
