@@ -51,7 +51,7 @@ class LSTMModel(object):
             self.loss = tf.reduce_mean(tf.nn.l2_loss(tf.sub(network_output, ybatch_reshaped)))
             self.train_op = tf.train.RMSPropOptimizer(self.config.learning_rate, decay=self.config.decay, momentum=self.config.momentum).minimize(self.loss)
 
-            self.test_loss = self.test()
+            self.test_loss = tf.placeholder(tf.float32, 1)
 
             # summary data
             tf.scalar_summary('training_loss', self.loss)
@@ -64,7 +64,8 @@ class LSTMModel(object):
 
     def train_batch(self, xbatch, ybatch):
         initial_state = np.zeros((self.config.batch_size, 2*self.config.num_layers*self.config.hidden_size))
-        loss, _ = self.session.run([self.loss, self.train_op], feed_dict={self.xbatch: xbatch, self.ybatch: ybatch, self.initial_state: initial_state})
+        loss, _, summary = self.session.run([self.loss, self.train_op, self.summary], feed_dict={self.xbatch: xbatch, self.ybatch: ybatch, self.initial_state: initial_state})
+        self.train_writer.add_summary(summary)
         return loss
 
     def train_epoch(self):
@@ -83,7 +84,8 @@ class LSTMModel(object):
                     saver.save(self.session, model_file + '_' + str(i/save_iter) + '.ckpt')
 
             if test_iter != None and i%test_iter == 0:
-                test_loss, summary = self.session.run([self.test_loss, self.summary], feed_dict={})
+                test_loss = self.test()
+                summary = self.session.run([self.summary], feed_dict={self.test_loss: test_loss})
                 self.train_writer.add_summary(summary)
 
     def test(self):
