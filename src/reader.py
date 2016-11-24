@@ -88,14 +88,11 @@ def get_test_arrays(raw_data, num_steps):
     X = np.concatenate([X[i,:,:] for i in range(N)], 1)
 
     # reshape test samples
-    X = np.reshape(np.transpose(X), [N*samples_per_image, num_steps, rows])
+    X = np.reshape(np.transpose(X), [N*samples_per_image, num_steps, rows])/255.0
 
     # divide into history and gen halves
     Y = X[:,num_steps/2:,:]
     X = X[:,:num_steps/2,:]
-
-    print X.shape
-    print Y.shape
 
     return X, Y
 
