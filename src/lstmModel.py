@@ -51,7 +51,7 @@ class LSTMModel(object):
             self.loss = tf.reduce_mean(tf.nn.l2_loss(tf.sub(network_output, ybatch_reshaped)))
             self.train_op = tf.train.RMSPropOptimizer(self.config.learning_rate, decay=self.config.decay, momentum=self.config.momentum).minimize(self.loss)
 
-            self.test_loss = tf.placeholder(tf.float32, 1)
+            self.test_loss = tf.placeholder(tf.float32, shape=())
 
             # summary data
             tf.scalar_summary('training_loss', self.loss)
@@ -86,7 +86,6 @@ class LSTMModel(object):
 
             if test_iter != None and i%test_iter == 0:
                 test_loss = self.test()
-                print test_loss
                 summary = self.session.run([self.test_summary], feed_dict={self.test_loss: test_loss})
                 self.train_writer.add_summary(summary)
 
