@@ -95,10 +95,10 @@ class LSTMModel(object):
         initial_state = np.zeros((self.lstm_input.test_size, 2*self.config.num_layers*self.config.hidden_size))
         next_lstm_state = self.session.run([self.lstm_new_state], feed_dict = {self.xbatch: X, self.initial_state: initial_state})
 
-        out = np.reshape(X[:,-1,:], [X.shape[0], 1,X.shape[2]])
+        out = np.reshape(X[:,-1,:], [X.shape[0], 1, X.shape[2]])
         gen_Y = np.zeros(Y.shape) # shape = (test_size, num_steps, feature_vector_size)
         for i in range(gen_Y.shape[1]):
-            out, next_lstm_state = self.session.run([self.final_outputs, self.lstm_new_state], feed_dict={self.xbatch: out, self.initial_state: next_lstm_state})
+            out, next_lstm_state = self.session.run([self.final_outputs, self.lstm_new_state], feed_dict={self.xbatch: out, self.initial_state: next_lstm_state[0]})
             gen_Y[:,i,:] = np.reshape(out, [out.shape[0], out.shape[2]])
 
         Y_reshaped = tf.reshape(Y, [-1, self.lstm_input.feature_vector_size])
