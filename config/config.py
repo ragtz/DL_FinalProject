@@ -20,11 +20,11 @@ configs = {'test': test_config.TestLSTMConfig,
            'model4': model4.ModelFourLSTMConfig,
            'model9': model9.ModelNineLSTMConfig,
            'lstmgan_test': lstmgan_test.LSTMGANTestConfig,
-           'gan11': gan11.LSTMGAN11Config
-           'gan19': gan19.LSTMGAN19Config
-           'gan55': gan55.LSTMGAN55Config
-           'gan91': gan91.LSTMGAN91Config
-           'gan1001': gan1001.LSTMGAN1001Config
-           'gan1999': gan1999.LSTMGAN1999Config
+           'gan11': gan11.LSTMGAN11Config,
+           'gan19': gan19.LSTMGAN19Config,
+           'gan55': gan55.LSTMGAN55Config,
+           'gan91': gan91.LSTMGAN91Config,
+           'gan1001': gan1001.LSTMGAN1001Config,
+           'gan1999': gan1999.LSTMGAN1999Config,
            'gan9991': gan9991.LSTMGAN9991Config}
 
