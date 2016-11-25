@@ -127,7 +127,7 @@ class LSTMGANModel(object):
         conv4_P = tf.nn.max_pool(conv4, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME')
 
         w = int(np.ceil(np.ceil(np.ceil(np.ceil(self.config.width/2)/2)/2)/2))
-        h = int(np.ceil(np.ceil(np.ceil(np.ceil(self.lstmgan_input.feature_vector_size/2/2)/2)/2))
+        h = int(np.ceil(np.ceil(np.ceil(np.ceil(self.lstmgan_input.feature_vector_size/2)/2)/2)/2))
         fc1_shape = [w*h*128, self.config.fc_size]
         fc1_W = tf.get_variable("fc1_W", fc1_shape, initializer=tf.random_normal_initializer(mean=0.0, stddev=0.01))
         fc1_B = tf.get_variable("fc1_B", (fc1_shape[-1],), initializer=tf.random_normal_initializer(mean=0.0, stddev=0.01))
