@@ -42,7 +42,7 @@ class LSTMGANModel(object):
             # discriminator generated samples
             self.d2_outputs, self.d2_presig = self.discriminator(tf.clip_by_value(self.g_outputs, 0, 1))
 
-        self.loss = tf.reduce_mean(tf.log(self.d1_outputs) + tf.log(1 - self.d2_outputs) + tf.nn.l2_loss(tf.sub(g_outputs_reshaped, ybatch_reshaped)))
+        self.loss = tf.reduce_mean(100*(tf.log(self.d1_outputs) + tf.log(1 - self.d2_outputs)) + tf.nn.l2_loss(tf.sub(g_outputs_reshaped, ybatch_reshaped)))
 
         self.d_loss = -(tf.reduce_mean(tf.log(self.d1_outputs) + tf.log(1 - self.d2_outputs)))
         self.g_loss = tf.reduce_mean(tf.log(1 - self.d2_outputs) + tf.nn.l2_loss(tf.sub(g_outputs_reshaped, ybatch_reshaped)))
@@ -120,12 +120,18 @@ class LSTMGANModel(object):
         conv3 = tf.nn.relu(tf.nn.conv2d(conv2_P, conv3_W, strides=[1,1,1,1], padding='SAME') + conv3_B)
         conv3_P = tf.nn.max_pool(conv3, ksize=[1, 4, 4, 1], strides=[1, 4, 4, 1], padding='SAME')
 
+        conv4_shape = [5,5,128,128]
+        conv4_W = tf.get_variable("conv4_W", conv4_shape, initializer=tf.random_normal_initializer(mean=0.0, stddev=0.01))
+        conv4_B = tf.get_variable("conv4_B", (conv4_shape[-1],), initializer=tf.random_normal_initializer(mean=0.0, stddev=0.01))
+        conv4 = tf.nn.relu(tf.nn.conv2d(conv3_P, conv4_W, strides=[1,1,1,1], padding='SAME') + conv4_B)
+        conv4_P = tf.nn.max_pool(conv4, ksize=[1, 4, 4, 1], strides=[1, 4, 4, 1], padding='SAME')
+
         w = int(np.ceil(np.ceil(np.ceil(self.config.width/4)/4)/4))
         h = int(np.ceil(np.ceil(np.ceil(self.lstmgan_input.feature_vector_size/4)/4)/4))
         fc1_shape = [w*h*128, self.config.fc_size]
         fc1_W = tf.get_variable("fc1_W", fc1_shape, initializer=tf.random_normal_initializer(mean=0.0, stddev=0.01))
         fc1_B = tf.get_variable("fc1_B", (fc1_shape[-1],), initializer=tf.random_normal_initializer(mean=0.0, stddev=0.01))
-        fc1 = tf.nn.relu(tf.matmul(tf.reshape(conv3_P, [-1, fc1_shape[0]]), fc1_W) + fc1_B)
+        fc1 = tf.nn.relu(tf.matmul(tf.reshape(conv4_P, [-1, fc1_shape[0]]), fc1_W) + fc1_B)
 
         fc2_shape = [self.config.fc_size, 1]
         fc2_W = tf.get_variable("fc2_W", fc2_shape, initializer=tf.random_normal_initializer(mean=0.0, stddev=0.01))
