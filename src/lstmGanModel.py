@@ -33,14 +33,20 @@ class LSTMGANModel(object):
             # discriminator real samples
             self.d1_outputs, self.d1_presig = self.discriminator(self.xbatch)
             self.d_params_num = len(tf.trainable_variables())
+
+            print len(tf.trainable_variables())
             
             # generator
             g_network_output, self.g_outputs, self.lstm_new_state = self.generator(self.xbatch, self.initial_state)
             g_outputs_reshaped = tf.reshape(self.g_outputs[:,self.config.width/2:,:], [-1, self.lstmgan_input.feature_vector_size])
 
+            print len(tf.trainable_variables())
+
         with tf.variable_scope(self.scope, reuse=True):
             # discriminator generated samples
             self.d2_outputs, self.d2_presig = self.discriminator(tf.clip_by_value(self.g_outputs, 0, 1))
+
+            print len(tf.trainable_variables())
 
         self.loss = tf.reduce_mean(tf.log(self.d1_outputs) + tf.log(1 - self.d2_outputs) + tf.nn.l2_loss(tf.sub(g_outputs_reshaped, ybatch_reshaped)))
 
@@ -99,41 +105,23 @@ class LSTMGANModel(object):
     def get_grad_norms(self, gv):
         return tf.pack([tf.nn.l2_loss(g) for g, _ in gv])
 
-    def discriminator(self, xbatch):
+    def discriminator(self, xbatch, initial_state):
         #xbatch_reshaped = tf.reshape(xbatch, [-1, self.config.width, self.lstmgan_input.feature_vector_size, 1])
         xbatch_reshaped = tf.reshape(xbatch, [-1, self.config.width*self.lstmgan_input.feature_vector_size])
 
-        fc1_shape = [self.config.width*self.lstmgan_input.feature_vector_size, 16384]
-        fc1_W = tf.get_variable("fc1_W", fc1_shape, initializer=tf.random_normal_initializer(mean=0.0, stddev=0.01))
-        fc1_B = tf.get_variable("fc1_B", (fc1_shape[-1],), initializer=tf.random_normal_initializer(mean=0.0, stddev=0.01))
-        fc1 = tf.nn.relu(tf.matmul(xbatch_reshaped, fc1_W) + fc1_B)
+        with tf.variable_scope("discriminator"):
+            lstm_cell = tf.nn.rnn_cell.BasicLSTMCell(self.config.lstm_size, forget_bias=1.0, state_is_tuple=False)
+            lstm = tf.nn.rnn_cell.MultiRNNCell([lstm_cell] * self.config.num_layers)
 
-        fc2_shape = [16384, 16384]
-        fc2_W = tf.get_variable("fc2_W", fc2_shape, initializer=tf.random_normal_initializer(mean=0.0, stddev=0.01))
-        fc2_B = tf.get_variable("fc2_B", (fc2_shape[-1],), initializer=tf.random_normal_initializer(mean=0.0, stddev=0.01))
-        fc2 = tf.nn.relu(tf.matmul(fc1, fc2_W) + fc2_B)
+            outputs, lstm_new_state = tf.nn.dynamic_rnn(lstm, xbatch, initial_state=initial_state)
 
-        fc3_shape = [16384, 16384]
-        fc3_W = tf.get_variable("fc3_W", fc3_shape, initializer=tf.random_normal_initializer(mean=0.0, stddev=0.01))
-        fc3_B = tf.get_variable("fc3_B", (fc3_shape[-1],), initializer=tf.random_normal_initializer(mean=0.0, stddev=0.01))
-        fc3 = tf.nn.relu(tf.matmul(fc2, fc3_W) + fc3_B)
+            rnn_out_W = tf.Variable(tf.random_normal((self.config.lstm_size, 1), stddev=0.01))
+            rnn_out_B = tf.Variable(tf.random_normal((1,), stddev=0.01))
 
-        fc4_shape = [16384, 4096]
-        fc4_W = tf.get_variable("fc4_W", fc4_shape, initializer=tf.random_normal_initializer(mean=0.0, stddev=0.01))
-        fc4_B = tf.get_variable("fc4_B", (fc4_shape[-1],), initializer=tf.random_normal_initializer(mean=0.0, stddev=0.01))
-        fc4 = tf.nn.relu(tf.matmul(fc3, fc4_W) + fc4_B)
+            outputs_reshaped = tf.reshape(outputs[-self.config.lstm_size:], [1, self.config.lstm_size])
+            network_output = tf.sigmoid(tf.matmul(outputs_reshaped, rnn_out_W) + rnn_out_B)
 
-        fc5_shape = [4096, 1024]
-        fc5_W = tf.get_variable("fc5_W", fc5_shape, initializer=tf.random_normal_initializer(mean=0.0, stddev=0.01))
-        fc5_B = tf.get_variable("fc5_B", (fc5_shape[-1],), initializer=tf.random_normal_initializer(mean=0.0, stddev=0.01))
-        fc5 = tf.nn.relu(tf.matmul(fc4, fc5_W) + fc5_B)
-
-        fc6_shape = [1024, 1]
-        fc6_W = tf.get_variable("fc6_W", fc6_shape, initializer=tf.random_normal_initializer(mean=0.0, stddev=0.01))
-        fc6_B = tf.get_variable("fc6_B", (fc6_shape[-1],), initializer=tf.random_normal_initializer(mean=0.0, stddev=0.01))
-        fc6 = tf.sigmoid(tf.matmul(fc5, fc6_W) + fc6_B)
-
-        return fc6, 0
+        return network_output
 
         '''
         conv1_shape = [5,5,1,32]
