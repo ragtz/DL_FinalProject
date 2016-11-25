@@ -115,8 +115,8 @@ class LSTMGANModel(object):
 
             outputs, lstm_new_state = tf.nn.dynamic_rnn(lstm, xbatch, initial_state=initial_state)
 
-            rnn_out_W = tf.Variable(tf.random_normal((self.config.lstm_size, 1), stddev=0.01))
-            rnn_out_B = tf.Variable(tf.random_normal((1,), stddev=0.01))
+            rnn_out_W = tf.Variable("rnn_out_W", tf.random_normal((self.config.lstm_size, 1), stddev=0.01))
+            rnn_out_B = tf.Variable("rnn_out_B", tf.random_normal((1,), stddev=0.01))
 
             outputs_sliced = outputs[:,(self.config.width-1)*self.config.lstm_size:self.config.width*self.config.lstm_size,:]
             outputs_reshaped = tf.reshape(outputs_sliced, [1, self.config.lstm_size])
