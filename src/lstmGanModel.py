@@ -107,7 +107,7 @@ class LSTMGANModel(object):
 
     def discriminator(self, xbatch, initial_state):
         #xbatch_reshaped = tf.reshape(xbatch, [-1, self.config.width, self.lstmgan_input.feature_vector_size, 1])
-        xbatch_reshaped = tf.reshape(xbatch, [-1, self.config.width*self.lstmgan_input.feature_vector_size])
+        xbatch = tf.reshape(xbatch, [-1, self.config.width, self.lstmgan_input.feature_vector_size])
 
         with tf.variable_scope("discriminator"):
             lstm_cell = tf.nn.rnn_cell.BasicLSTMCell(self.config.lstm_size, forget_bias=1.0, state_is_tuple=False)
