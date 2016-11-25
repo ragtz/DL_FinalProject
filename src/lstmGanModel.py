@@ -157,7 +157,7 @@ class LSTMGANModel(object):
         initial_state = np.zeros((self.config.batch_size, 2*self.config.num_layers*self.config.lstm_size))
         
         # train discriminator
-        d_loss, _, d1_outputs, d2_outputs, summary, v_ns, v_nms, g_nms = self.session.run([self.d_loss, self.train_d, self.d1_outputs, self.d2_outputs, self.summary, self.var_names, self.var_norms, self.grad_norms], feed_dict={self.xbatch: xbatch, self.ybatch: ybatch, self.initial_state: initial_state})
+        d_loss, _, d1_outputs, d2_outputs, summary, v_ns, v_nms, g_nms = self.session.run([self.d_loss, self.train_d, self.d1_outputs, self.d2_outputs, self.train_summary, self.var_names, self.var_norms, self.grad_norms], feed_dict={self.xbatch: xbatch, self.ybatch: ybatch, self.initial_state: initial_state})
 
         self.train_writer.add_summary(summary)
 
