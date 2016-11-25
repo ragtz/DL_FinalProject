@@ -42,9 +42,12 @@ class LSTMGANModel(object):
             # discriminator generated samples
             self.d2_outputs, self.d2_presig = self.discriminator(tf.clip_by_value(self.g_outputs, 0, 1))
 
+        self.loss = tf.reduce_mean(tf.log(self.d1_outputs) + tf.log(1 - self.d2_outputs)) + tf.nn.l2_loss(tf.sub(g_outputs_reshaped, ybatch_reshaped)))
+
         self.d_loss = -(tf.reduce_mean(tf.log(self.d1_outputs) + tf.log(1 - self.d2_outputs)))
-        #self.g_loss = tf.reduce_mean(tf.log(1 - self.d2_outputs))
         self.g_loss = tf.reduce_mean(tf.log(1 - self.d2_outputs) + tf.nn.l2_loss(tf.sub(g_outputs_reshaped, ybatch_reshaped)))
+
+        #self.g_loss = tf.reduce_mean(tf.log(1 - self.d2_outputs))
         #self.g_loss = tf.reduce_mean(tf.nn.l2_loss(tf.sub(g_outputs_reshaped, ybatch_reshaped)))
         #self.g_loss = tf.reduce_mean(tf.nn.l2_loss(tf.sub(g_network_output, ybatch_reshaped)))
         self.rec_loss = tf.reduce_mean(tf.nn.l2_loss(tf.sub(g_network_output, tf.reshape(self.ybatch, [-1, self.lstmgan_input.feature_vector_size]))))
@@ -81,8 +84,11 @@ class LSTMGANModel(object):
         self.grad_norm = tf.global_norm([gv[0] for gv in grads_and_vars])
         self.train_d = opt.apply_gradients(grads_and_vars)
 
-        self.train_d = tf.train.RMSPropOptimizer(self.config.d_learning_rate, decay=self.config.d_decay, momentum=self.config.d_momentum).minimize(self.d_loss, var_list=d_params)
-        self.train_g = tf.train.RMSPropOptimizer(self.config.g_learning_rate, decay=self.config.g_decay, momentum=self.config.g_momentum).minimize(self.g_loss, var_list=g_params)
+        #self.train_d = tf.train.RMSPropOptimizer(self.config.d_learning_rate, decay=self.config.d_decay, momentum=self.config.d_momentum).minimize(self.d_loss, var_list=d_params)
+        #self.train_g = tf.train.RMSPropOptimizer(self.config.g_learning_rate, decay=self.config.g_decay, momentum=self.config.g_momentum).minimize(self.g_loss, var_list=g_params)
+
+        self.train_d = tf.train.RMSPropOptimizer(self.config.d_learning_rate, decay=self.config.d_decay, momentum=self.config.d_momentum).minimize(-self.loss, var_list=d_params)
+        self.train_g = tf.train.RMSPropOptimizer(self.config.g_learning_rate, decay=self.config.g_decay, momentum=self.config.g_momentum).minimize(self.loss, var_list=g_params)
 
     def get_var_names(self, gv):
         return tf.pack([v.name for _, v in gv])
