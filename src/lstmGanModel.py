@@ -122,7 +122,7 @@ class LSTMGANModel(object):
             print self.config.width - 1
             print self.config.lstm_size
             print (self.config.width - 1)*self.config.lstm_size
-            last_start = (self.config.width - 1)*self.config.lstm_size
+            last_start = -(self.config.width - 1)*self.config.lstm_size
             print last_start
             print tf.shape(outputs[:,last_start+200:,:])
             outputs_reshaped = tf.reshape(outputs[:,(self.config.width-1)*self.config.lstm_size:,:], [1, self.config.lstm_size])
