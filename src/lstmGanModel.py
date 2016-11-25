@@ -204,10 +204,10 @@ class LSTMGANModel(object):
             #np.savetxt('test_d2_labels_adv_rec.csv', np.array(d2_labels), delimiter=',')
 
             if test_iter != None and i%test_iter == 0:
-                X = self.lstm_input.test_X
-                Y = self.lstm_input.test_Y
-                initial_state = np.zeros((self.lstm_input.test_size, 2*self.config.num_layers*self.config.hidden_size))
-                loss = self.session.run(self.rec_loss, feed_dict = {self.xbatch: X, self.ybatch: Y, self.initial_state: initial_state})
+                X = self.lstmgan_input.test_X
+                Y = self.lstmgan_input.test_Y
+                initial_state = np.zeros((self.lstmgan_input.test_size, 2*self.config.num_layers*self.config.hidden_size))
+                loss = self.session.run(self.test_loss, feed_dict = {self.xbatch: X, self.ybatch: Y, self.initial_state: initial_state})
                 summary = self.session.run(self.test_summary, feed_dict={self.test_loss: loss})
                 self.train_writer.add_summary(summary)
             
