@@ -85,8 +85,13 @@ class LSTMModel(object):
                     saver.save(self.session, model_file + '_' + str(i/save_iter) + '.ckpt')
 
             if test_iter != None and i%test_iter == 0:
-                test_loss = self.test()
-                summary = self.session.run(self.test_summary, feed_dict={self.test_loss: test_loss})
+                #test_loss = self.test()
+                X = self.lstm_input.test_X
+                Y = self.lstm_input.test_Y
+                initial_state = np.zeros((self.lstm_input.test_size, 2*self.config.num_layers*self.config.hidden_size))
+                loss = self.session.run(self.loss, feed_dict = {self.xbatch: X, self.ybatch: Y, self.initial_state: initial_state})
+                #summary = self.session.run(self.test_summary, feed_dict={self.test_loss: test_loss})
+                summary = self.session.run(self.test_summary, feed_dict={self.test_loss: loss})
                 self.train_writer.add_summary(summary)
 
     def test(self):
