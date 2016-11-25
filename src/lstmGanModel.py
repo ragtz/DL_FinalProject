@@ -33,14 +33,10 @@ class LSTMGANModel(object):
             # discriminator real samples
             self.d1_outputs, self.d1_presig = self.discriminator(self.xbatch, self.initial_state)
             self.d_params_num = len(tf.trainable_variables())
-
-            print len(tf.trainable_variables())
             
             # generator
             g_network_output, self.g_outputs, self.lstm_new_state = self.generator(self.xbatch, self.initial_state)
             g_outputs_reshaped = tf.reshape(self.g_outputs[:,self.config.width/2:,:], [-1, self.lstmgan_input.feature_vector_size])
-
-            print len(tf.trainable_variables())
 
         with tf.variable_scope(self.scope, reuse=True):
             # discriminator generated samples
@@ -121,9 +117,11 @@ class LSTMGANModel(object):
             rnn_out_W = tf.get_variable("rnn_out_W", rnnW_shape, initializer=tf.random_normal_initializer(mean=0.0, stddev=0.01))
             rnn_out_B = tf.get_variable("rnn_out_B", rnnB_shape, initializer=tf.random_normal_initializer(mean=0.0, stddev=0.01))
 
-            outputs_sliced = outputs[:,(self.config.width-1)*self.config.lstm_size:self.config.width*self.config.lstm_size,:]
-            outputs_reshaped = tf.reshape(outputs_sliced, [1, self.config.lstm_size])
-            network_output = tf.sigmoid(tf.matmul(outputs_reshaped, rnn_out_W) + rnn_out_B)
+            last_idx = tf.shape(outputs)[1] - 1
+            last_output = tf.nn.embedding_lookup(outputs, last_idx)
+
+            last_output_reshaped = tf.reshape(last_output, [1, self.config.lstm_size])
+            network_output = tf.sigmoid(tf.matmul(last_output_reshaped, rnn_out_W) + rnn_out_B)
 
         return network_output, 0
 
