@@ -9,7 +9,7 @@ class LSTMGANTestConfig(object):
     g_momentum = 0
 
     lstm_size = 512
-    num_layers = 1
+    num_layers = 3
 
     fc_size = 1024
 
