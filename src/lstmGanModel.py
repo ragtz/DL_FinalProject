@@ -122,6 +122,7 @@ class LSTMGANModel(object):
             print self.config.width - 1
             print self.config.lstm_size
             print (self.config.width - 1)*self.config.lstm_size
+            print tf.shape(outputs[:,(self.config.width-1)*self.config.lstm_size:,:])
             outputs_reshaped = tf.reshape(outputs[:,(self.config.width-1)*self.config.lstm_size:,:], [1, self.config.lstm_size])
             network_output = tf.sigmoid(tf.matmul(outputs_reshaped, rnn_out_W) + rnn_out_B)
 
