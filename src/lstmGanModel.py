@@ -41,7 +41,7 @@ class LSTMGANModel(object):
 
         with tf.variable_scope(self.scope, reuse=True):
             # discriminator generated samples
-            self.d2_outputs, self.d2_presig = self.discriminator(tf.clip_by_value(self.g_outputs, 0, 1), self.initial_state)
+            self.d2_outputs = self.discriminator(tf.clip_by_value(self.g_outputs, 0, 1), self.initial_state)
 
             print len(tf.trainable_variables())
 
