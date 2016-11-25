@@ -12,7 +12,8 @@ class LSTMInput(object):
         self.feature_vector_size = reader.feature_vector_size(self.data)
         self.epoch_size = reader.epoch_size(self.data, self.batch_size, self.num_steps)
         self.X, self.Y = reader.batch_data_array(self.data, self.batch_size, self.num_steps)
-        self.test_X, self.test_Y = reader.get_test_arrays(self.test_data, self.test_num_steps)
+        #self.test_X, self.test_Y = reader.get_test_arrays(self.test_data, self.test_num_steps)
+        self.test_X, self.test_Y = reader.batch_test_data_array(self.test_data, self.test_num_steps)
         self.test_size = self.test_X.shape[0]
 
 class LSTMModel(object):

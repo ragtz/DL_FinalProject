@@ -71,6 +71,30 @@ def batch_data_array(raw_data, batch_size, num_steps):
 
     return X, Y
 
+def batch_test_data_array(raw_data, num_steps):
+    N, rows, cols = raw_data.shape
+
+    samples_per_image = (cols - 1) / num_steps
+    batch_size = N*samples_per_image
+
+    # get all samples
+    X = raw_data[:,:,0:num_steps*samples_per_image]
+    Y = raw_data[:,:,1:num_steps*samples_per_image+1]
+
+    # flatten to 2-D
+    X = np.concatenate([X[i,:,:] for i in range(N)], 1)
+    Y = np.concatenate([Y[i,:,:] for i in range(N)], 1)
+
+    # remove excess data
+    X = X[0:rows, 0:batch_size*num_steps]
+    Y = Y[0:rows, 0:batch_size*num_steps]
+
+    # reshape to batches
+    X = np.reshape(np.transpose(X), [batch_size, num_steps, rows])/255.0
+    Y = np.reshape(np.transpose(Y), [batch_size, num_steps, rows])/255.0
+
+    return X, Y
+
 def get_batch(X, Y, i):
     x = X[i,:,:,:]
     y = Y[i,:,:,:]
