@@ -31,7 +31,7 @@ class LSTMGANModel(object):
 
         with tf.variable_scope(self.scope):
             # discriminator real samples
-            self.d1_outputs, self.d1_presig = self.discriminator(self.xbatch)
+            self.d1_outputs, self.d1_presig = self.discriminator(self.xbatch, self.initial_state)
             self.d_params_num = len(tf.trainable_variables())
 
             print len(tf.trainable_variables())
@@ -44,7 +44,7 @@ class LSTMGANModel(object):
 
         with tf.variable_scope(self.scope, reuse=True):
             # discriminator generated samples
-            self.d2_outputs, self.d2_presig = self.discriminator(tf.clip_by_value(self.g_outputs, 0, 1))
+            self.d2_outputs, self.d2_presig = self.discriminator(tf.clip_by_value(self.g_outputs, 0, 1), self.initial_state)
 
             print len(tf.trainable_variables())
 
@@ -121,7 +121,7 @@ class LSTMGANModel(object):
             outputs_reshaped = tf.reshape(outputs[-self.config.lstm_size:], [1, self.config.lstm_size])
             network_output = tf.sigmoid(tf.matmul(outputs_reshaped, rnn_out_W) + rnn_out_B)
 
-        return network_output
+        return network_output, 0
 
         '''
         conv1_shape = [5,5,1,32]
