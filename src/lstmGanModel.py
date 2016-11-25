@@ -3,16 +3,20 @@ import tensorflow as tf
 import numpy as np
 
 class LSTMGANInput(object):
-    def __init__(self, config, data_path, name=None):
+    def __init__(self, config, train_data_path, test_data_path, name=None):
         self.data = np.load(data_path)
+        self.test_data = np.load(test_data_path)
         self.feature_vector_size = reader.feature_vector_size(self.data)
         self.epoch_size = reader.epoch_size(self.data, config.batch_size, config.width)
         self.X, self.Y = reader.batch_data_array(self.data, config.batch_size, config.width)
+        self.test_X, self.test_Y = reader.batch_test_data_array(self.test_data, config.test_width)
+        self.test_size = self.test_X.shape[0]
 
 class LSTMGANModel(object):
-    def __init__(self, config, lstmgan_input, session, name="lstm_gan_model"):
+    def __init__(self, config, lstmgan_input, session, summary_dir, name="lstm_gan_model"):
         self.scope = name
         self.session = session
+        self.summary_dir = summary_dir
 
         self.config = config
         self.lstmgan_input = lstmgan_input
@@ -20,8 +24,8 @@ class LSTMGANModel(object):
         self.lstm_last_state = np.zeros((2*self.config.num_layers*self.config.lstm_size,))
         self.initial_state = tf.placeholder(tf.float32, shape=(None, 2*self.config.num_layers*self.config.lstm_size), name="initial_state")
         
-        self.xbatch = tf.placeholder(tf.float32, shape=(None, self.config.width, self.lstmgan_input.feature_vector_size), name="xbatch")
-        self.ybatch = tf.placeholder(tf.float32, shape=(None, self.config.width, self.lstmgan_input.feature_vector_size), name="ybatch")
+        self.xbatch = tf.placeholder(tf.float32, shape=(None, None, self.lstmgan_input.feature_vector_size), name="xbatch")
+        self.ybatch = tf.placeholder(tf.float32, shape=(None, None, self.lstmgan_input.feature_vector_size), name="ybatch")
         #ybatch_reshaped = tf.reshape(self.ybatch, [-1, self.lstmgan_input.feature_vector_size])
         ybatch_reshaped = tf.reshape(self.ybatch[:,self.config.width/2:,:], [-1, self.lstmgan_input.feature_vector_size])
 
@@ -43,7 +47,7 @@ class LSTMGANModel(object):
         self.g_loss = tf.reduce_mean(tf.log(1 - self.d2_outputs) + tf.nn.l2_loss(tf.sub(g_outputs_reshaped, ybatch_reshaped)))
         #self.g_loss = tf.reduce_mean(tf.nn.l2_loss(tf.sub(g_outputs_reshaped, ybatch_reshaped)))
         #self.g_loss = tf.reduce_mean(tf.nn.l2_loss(tf.sub(g_network_output, ybatch_reshaped)))
-        rec_loss = tf.reduce_mean(tf.nn.l2_loss(tf.sub(g_network_output, tf.reshape(self.ybatch, [-1, self.lstmgan_input.feature_vector_size]))))
+        self.rec_loss = tf.reduce_mean(tf.nn.l2_loss(tf.sub(g_network_output, tf.reshape(self.ybatch, [-1, self.lstmgan_input.feature_vector_size]))))
 
         params = tf.trainable_variables()
         d_params = params[:self.d_params_num]
@@ -65,8 +69,9 @@ class LSTMGANModel(object):
 
         tf.image_summary('gen_img', tf.reshape(255*tf.clip_by_value(tf.transpose(self.g_outputs, perm=[0,2,1]), 0, 1), [self.config.batch_size, self.lstmgan_input.feature_vector_size, self.config.width, 1]), max_images=5)
 
-        self.summary = tf.merge_all_summaries()
-        self.train_writer = tf.train.SummaryWriter('test_summary_adv_rec', self.session.graph)
+        self.train_summary = tf.merge_all_summaries()
+        self.test_summary = tf.scalar_summary('test_loss', self.rec_loss)
+        self.train_writer = tf.train.SummaryWriter(self.summary_dir, self.session.graph)
         
         self.var_names = self.get_var_names(grads_and_vars)
         self.var_norms = self.get_var_norms(grads_and_vars)
@@ -75,7 +80,7 @@ class LSTMGANModel(object):
         self.grad_norm = tf.global_norm([gv[0] for gv in grads_and_vars])
         self.train_d = opt.apply_gradients(grads_and_vars)
 
-        #self.train_d = tf.train.RMSPropOptimizer(self.config.d_learning_rate, decay=self.config.d_decay, momentum=self.config.d_momentum).minimize(self.d_loss, var_list=d_params)
+        self.train_d = tf.train.RMSPropOptimizer(self.config.d_learning_rate, decay=self.config.d_decay, momentum=self.config.d_momentum).minimize(self.d_loss, var_list=d_params)
         self.train_g = tf.train.RMSPropOptimizer(self.config.g_learning_rate, decay=self.config.g_decay, momentum=self.config.g_momentum).minimize(self.g_loss, var_list=g_params)
 
     def get_var_names(self, gv):
@@ -176,7 +181,7 @@ class LSTMGANModel(object):
             d_loss, g_loss, d1_outputs, d2_outputs, losses, var_names, var_norms, grad_norms, d1_labels, d2_labels = self.train_batch(x, y, losses, var_names, var_norms, grad_norms, d1_labels, d2_labels)
         return d_loss, g_loss, d1_outputs, d2_outputs, losses, var_names, var_norms, grad_norms, d1_labels, d2_labels
 
-    def train(self):
+    def train(self, test_iter=None):
         losses = []
         var_names = []
         var_norms = []
@@ -187,15 +192,23 @@ class LSTMGANModel(object):
             d_loss, g_loss, d1_outputs, d2_outputs, losses, var_names, var_norms, grad_norms, d1_labels, d2_labels = self.train_epoch(losses, var_names, var_norms, grad_norms, d1_labels, d2_labels)
             #losses.append([i, d_loss, g_loss])
             print "Epoch " + str(i) + ": " + str(d_loss) + ", " + str(g_loss)
-            print d1_outputs[:5].T
-            print d2_outputs[:5].T
+            #print d1_outputs[:5].T
+            #print d2_outputs[:5].T
             
-            np.savetxt('test_losses_adv_rec.csv', np.array(losses), delimiter=',')
+            #np.savetxt('test_losses_adv_rec.csv', np.array(losses), delimiter=',')
             #np.savetxt('test_var_names.csv', np.array(var_names), delimiter=',')
-            np.savetxt('test_var_norms_adv_rec.csv', np.array(var_norms), delimiter=',')
-            np.savetxt('test_grad_norms_adv_rec.csv', np.array(grad_norms), delimiter=',')
-            np.savetxt('test_d1_labels_adv_rec.csv', np.array(d1_labels), delimiter=',')
-            np.savetxt('test_d2_labels_adv_rec.csv', np.array(d2_labels), delimiter=',')
+            #np.savetxt('test_var_norms_adv_rec.csv', np.array(var_norms), delimiter=',')
+            #np.savetxt('test_grad_norms_adv_rec.csv', np.array(grad_norms), delimiter=',')
+            #np.savetxt('test_d1_labels_adv_rec.csv', np.array(d1_labels), delimiter=',')
+            #np.savetxt('test_d2_labels_adv_rec.csv', np.array(d2_labels), delimiter=',')
+
+            if test_iter != None and i%test_iter == 0:
+                X = self.lstm_input.test_X
+                Y = self.lstm_input.test_Y
+                initial_state = np.zeros((self.lstm_input.test_size, 2*self.config.num_layers*self.config.hidden_size))
+                loss = self.session.run(self.rec_loss, feed_dict = {self.xbatch: X, self.ybatch: Y, self.initial_state: initial_state})
+                summary = self.session.run(self.test_summary, feed_dict={self.test_loss: loss})
+                self.train_writer.add_summary(summary)
             
         #np.savetxt('test_losses.csv', np.array(losses), delimiter=',')
 
