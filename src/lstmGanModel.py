@@ -204,7 +204,7 @@ class LSTMGANModel(object):
 
     def train(self, saver=None, model_file=None, save_iter=None, test_iter=None):
         for i in range(self.config.max_epoch):
-            d_loss, g_loss = self.train_epoch(losses, var_names, var_norms, grad_norms, d1_labels, d2_labels)
+            d_loss, g_loss = self.train_epoch()
             print "Epoch " + str(i) + ": " + str(d_loss) + ", " + str(g_loss)
 
             if save_iter != None and i%save_iter == 0:
