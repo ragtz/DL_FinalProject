@@ -103,32 +103,32 @@ class LSTMGANModel(object):
         #xbatch_reshaped = tf.reshape(xbatch, [-1, self.config.width, self.lstmgan_input.feature_vector_size, 1])
         xbatch_reshaped = tf.reshape(xbatch, [-1, self.config.width*self.lstmgan_input.feature_vector_size])
 
-        fc1_shape = [self.config.width*self.lstmgan_input.feature_vector_size, 65536]
+        fc1_shape = [self.config.width*self.lstmgan_input.feature_vector_size, 32769]
         fc1_W = tf.get_variable("fc1_W", fc1_shape, initializer=tf.random_normal_initializer(mean=0.0, stddev=0.01))
         fc1_B = tf.get_variable("fc1_B", (fc1_shape[-1],), initializer=tf.random_normal_initializer(mean=0.0, stddev=0.01))
         fc1 = tf.nn.relu(tf.matmul(xbatch_reshaped, fc1_W) + fc1_B)
 
-        fc2_shape = [65536, 65536]
+        fc2_shape = [32768, 32768]
         fc2_W = tf.get_variable("fc2_W", fc2_shape, initializer=tf.random_normal_initializer(mean=0.0, stddev=0.01))
         fc2_B = tf.get_variable("fc2_B", (fc2_shape[-1],), initializer=tf.random_normal_initializer(mean=0.0, stddev=0.01))
         fc2 = tf.nn.relu(tf.matmul(fc1, fc2_W) + fc2_B)
 
-        fc3_shape = [65536, 65536]
+        fc3_shape = [32768, 32768]
         fc3_W = tf.get_variable("fc3_W", fc3_shape, initializer=tf.random_normal_initializer(mean=0.0, stddev=0.01))
         fc3_B = tf.get_variable("fc3_B", (fc3_shape[-1],), initializer=tf.random_normal_initializer(mean=0.0, stddev=0.01))
         fc3 = tf.nn.relu(tf.matmul(fc2, fc3_W) + fc3_B)
 
-        fc4_shape = [65536, 32768]
+        fc4_shape = [32768, 4096]
         fc4_W = tf.get_variable("fc4_W", fc4_shape, initializer=tf.random_normal_initializer(mean=0.0, stddev=0.01))
         fc4_B = tf.get_variable("fc4_B", (fc4_shape[-1],), initializer=tf.random_normal_initializer(mean=0.0, stddev=0.01))
         fc4 = tf.nn.relu(tf.matmul(fc3, fc4_W) + fc4_B)
 
-        fc5_shape = [32768, 4096]
+        fc5_shape = [4096, 1024]
         fc5_W = tf.get_variable("fc5_W", fc5_shape, initializer=tf.random_normal_initializer(mean=0.0, stddev=0.01))
         fc5_B = tf.get_variable("fc5_B", (fc5_shape[-1],), initializer=tf.random_normal_initializer(mean=0.0, stddev=0.01))
         fc5 = tf.nn.relu(tf.matmul(fc4, fc5_W) + fc5_B)
 
-        fc6_shape = [4096, 1]
+        fc6_shape = [1024, 1]
         fc6_W = tf.get_variable("fc6_W", fc6_shape, initializer=tf.random_normal_initializer(mean=0.0, stddev=0.01))
         fc6_B = tf.get_variable("fc6_B", (fc6_shape[-1],), initializer=tf.random_normal_initializer(mean=0.0, stddev=0.01))
         fc6 = tf.sigmoid(tf.matmul(fc5, fc6_W) + fc6_B)
