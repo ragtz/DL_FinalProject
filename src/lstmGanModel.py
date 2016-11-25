@@ -48,6 +48,7 @@ class LSTMGANModel(object):
         #self.g_loss = tf.reduce_mean(tf.nn.l2_loss(tf.sub(g_outputs_reshaped, ybatch_reshaped)))
         #self.g_loss = tf.reduce_mean(tf.nn.l2_loss(tf.sub(g_network_output, ybatch_reshaped)))
         self.rec_loss = tf.reduce_mean(tf.nn.l2_loss(tf.sub(g_network_output, tf.reshape(self.ybatch, [-1, self.lstmgan_input.feature_vector_size]))))
+        self.test_loss = tf.reduce_mean(tf.nn.l2_loss(tf.sub(g_network_output, tf.reshape(self.ybatch, [-1, self.lstmgan_input.feature_vector_size]))))
 
         params = tf.trainable_variables()
         d_params = params[:self.d_params_num]
@@ -62,7 +63,7 @@ class LSTMGANModel(object):
 
         tf.scalar_summary('d_loss', self.d_loss)
         tf.scalar_summary('g_loss', self.g_loss)
-        tf.scalar_summary('rec_loss', rec_loss)
+        tf.scalar_summary('rec_loss', self.rec_loss)
 
         tf.histogram_summary('d1_outputs', self.d1_outputs)
         tf.histogram_summary('d2_outputs', self.d2_outputs)
@@ -70,7 +71,7 @@ class LSTMGANModel(object):
         tf.image_summary('gen_img', tf.reshape(255*tf.clip_by_value(tf.transpose(self.g_outputs, perm=[0,2,1]), 0, 1), [self.config.batch_size, self.lstmgan_input.feature_vector_size, self.config.width, 1]), max_images=5)
 
         self.train_summary = tf.merge_all_summaries()
-        self.test_summary = tf.scalar_summary('test_loss', self.rec_loss)
+        self.test_summary = tf.scalar_summary('test_loss', self.test_loss)
         self.train_writer = tf.train.SummaryWriter(self.summary_dir, self.session.graph)
         
         self.var_names = self.get_var_names(grads_and_vars)
