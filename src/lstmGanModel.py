@@ -42,7 +42,7 @@ class LSTMGANModel(object):
             # discriminator generated samples
             self.d2_outputs, self.d2_presig = self.discriminator(tf.clip_by_value(self.g_outputs, 0, 1))
 
-        self.loss = tf.reduce_mean(100*(tf.log(self.d1_outputs) + tf.log(1 - self.d2_outputs)) + -1*tf.nn.l2_loss(tf.sub(g_outputs_reshaped, ybatch_reshaped)))
+        self.loss = tf.reduce_mean(tf.log(self.d1_outputs) + tf.log(1 - self.d2_outputs) + tf.nn.l2_loss(tf.sub(g_outputs_reshaped, ybatch_reshaped)))
 
         self.d_loss = -(tf.reduce_mean(tf.log(self.d1_outputs) + tf.log(1 - self.d2_outputs)))
         self.g_loss = tf.reduce_mean(tf.log(1 - self.d2_outputs) + tf.nn.l2_loss(tf.sub(g_outputs_reshaped, ybatch_reshaped)))
@@ -100,8 +100,42 @@ class LSTMGANModel(object):
         return tf.pack([tf.nn.l2_loss(g) for g, _ in gv])
 
     def discriminator(self, xbatch):
-        xbatch_reshaped = tf.reshape(xbatch, [-1, self.config.width, self.lstmgan_input.feature_vector_size, 1])
+        #xbatch_reshaped = tf.reshape(xbatch, [-1, self.config.width, self.lstmgan_input.feature_vector_size, 1])
+        xbatch_reshaped = tf.reshape(xbatch, [-1, self.config.width*self.lstmgan_input.feature_vector_size])
 
+        fc1_shape = [self.config.width*self.lstmgan_input.feature_vector_size, 262144]
+        fc1_W = tf.get_variable("fc1_W", fc1_shape, initializer=tf.random_normal_initializer(mean=0.0, stddev=0.01))
+        fc1_B = tf.get_variable("fc1_B", (fc1_shape[-1],), initializer=tf.random_normal_initializer(mean=0.0, stddev=0.01))
+        fc1 = tf.nn.relu(tf.matmul(xbatch_reshaped, fc1_W) + fc1_B)
+
+        fc2_shape = [262144, 262144]
+        fc2_W = tf.get_variable("fc2_W", fc2_shape, initializer=tf.random_normal_initializer(mean=0.0, stddev=0.01))
+        fc2_B = tf.get_variable("fc2_B", (fc2_shape[-1],), initializer=tf.random_normal_initializer(mean=0.0, stddev=0.01))
+        fc2 = tf.nn.relu(tf.matmul(fc1, fc2_W) + fc2_B)
+
+        fc3_shape = [262144, 262144]
+        fc3_W = tf.get_variable("fc3_W", fc3_shape, initializer=tf.random_normal_initializer(mean=0.0, stddev=0.01))
+        fc3_B = tf.get_variable("fc3_B", (fc3_shape[-1],), initializer=tf.random_normal_initializer(mean=0.0, stddev=0.01))
+        fc3 = tf.nn.relu(tf.matmul(fc2, fc3_W) + fc3_B)
+
+        fc4_shape = [262144, 32768]
+        fc4_W = tf.get_variable("fc4_W", fc4_shape, initializer=tf.random_normal_initializer(mean=0.0, stddev=0.01))
+        fc4_B = tf.get_variable("fc4_B", (fc4_shape[-1],), initializer=tf.random_normal_initializer(mean=0.0, stddev=0.01))
+        fc4 = tf.nn.relu(tf.matmul(fc3, fc4_W) + fc4_B)
+
+        fc5_shape = [32768, 4096]
+        fc5_W = tf.get_variable("fc5_W", fc5_shape, initializer=tf.random_normal_initializer(mean=0.0, stddev=0.01))
+        fc5_B = tf.get_variable("fc5_B", (fc5_shape[-1],), initializer=tf.random_normal_initializer(mean=0.0, stddev=0.01))
+        fc5 = tf.nn.relu(tf.matmul(fc4, fc5_W) + fc5_B)
+
+        fc6_shape = [4096, 1]
+        fc6_W = tf.get_variable("fc6_W", fc6_shape, initializer=tf.random_normal_initializer(mean=0.0, stddev=0.01))
+        fc6_B = tf.get_variable("fc6_B", (fc6_shape[-1],), initializer=tf.random_normal_initializer(mean=0.0, stddev=0.01))
+        fc6 = tf.sigmoid(tf.matmul(fc5, fc6_W) + fc6_B)
+
+        return fc6, 0
+
+        '''
         conv1_shape = [5,5,1,32]
         conv1_W = tf.get_variable("conv1_W", conv1_shape, initializer=tf.random_normal_initializer(mean=0.0, stddev=0.01))
         conv1_B = tf.get_variable("conv1_B", (conv1_shape[-1],), initializer=tf.random_normal_initializer(mean=0.0, stddev=0.01))
@@ -138,6 +172,7 @@ class LSTMGANModel(object):
         fc2_B = tf.get_variable("fc2_B", (fc2_shape[-1],), initializer=tf.random_normal_initializer(mean=0.0, stddev=0.01))
         fc2_presig = tf.matmul(tf.reshape(fc1, [-1, fc2_shape[0]]), fc2_W) + fc2_B
         fc2 = tf.sigmoid(tf.matmul(tf.reshape(fc1, [-1, fc2_shape[0]]), fc2_W) + fc2_B)
+        '''
 
         '''
         fc2_shape = [w*h*128, 1]
