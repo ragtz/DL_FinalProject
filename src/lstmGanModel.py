@@ -4,7 +4,7 @@ import numpy as np
 
 class LSTMGANInput(object):
     def __init__(self, config, train_data_path, test_data_path, name=None):
-        self.data = np.load(data_path)
+        self.data = np.load(train_data_path)
         self.test_data = np.load(test_data_path)
         self.feature_vector_size = reader.feature_vector_size(self.data)
         self.epoch_size = reader.epoch_size(self.data, config.batch_size, config.width)
