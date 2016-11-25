@@ -32,7 +32,7 @@ class LSTMGANModel(object):
 
         with tf.variable_scope(self.scope):
             # discriminator real samples
-            self.d1_outputs, self.d1_presig = self.discriminator(self.xbatch, self.initial_state)
+            self.d1_outputs = self.discriminator(self.xbatch, self.initial_state)
             self.d_params_num = len(tf.trainable_variables())
             
             # generator
