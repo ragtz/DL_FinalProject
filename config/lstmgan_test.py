@@ -4,7 +4,7 @@ class LSTMGANTestConfig(object):
     d_decay = 0.9
     d_momentum = 0
 
-    g_learning_rate = 0.01
+    g_learning_rate = 0.001
     g_decay = 0.9
     g_momentum = 0
 
