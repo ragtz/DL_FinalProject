@@ -120,7 +120,7 @@ class LSTMGANModel(object):
             last_idx = tf.shape(outputs)[1] - 1
             last_output = tf.nn.embedding_lookup(outputs, last_idx)
 
-            last_output_reshaped = tf.reshape(last_output, [1, self.config.lstm_size])
+            last_output_reshaped = tf.reshape(last_output, [-1, self.config.lstm_size])
             network_output = tf.sigmoid(tf.matmul(last_output_reshaped, rnn_out_W) + rnn_out_B)
 
         return network_output, 0
