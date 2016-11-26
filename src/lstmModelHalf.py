@@ -16,7 +16,7 @@ class LSTMInput(object):
         self.test_X, self.test_Y = reader.batch_test_data_array(self.test_data, self.test_num_steps)
         self.test_size = self.test_X.shape[0]
 
-class LSTMModel(object):
+class LSTMModelHalf(object):
     def __init__(self, config, lstm_input, session, summary_dir, name="lstm_model"):
         self.scope = name
         self.session = session
