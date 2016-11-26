@@ -54,7 +54,7 @@ class LSTMModelHalf(object):
             self.loss = tf.reduce_mean(tf.nn.l2_loss(tf.sub(final_outputs_reshaped, ybatch_reshaped)))
             self.train_op = tf.train.RMSPropOptimizer(self.config.learning_rate, decay=self.config.decay, momentum=self.config.momentum).minimize(self.loss)
 
-            self.test_loss = tf.reduce_mean(tf.nn.l2_loss(tf.sub(g_network_output, tf.reshape(self.ybatch, [-1, self.lstm_input.feature_vector_size]))))
+            self.test_loss = tf.reduce_mean(tf.nn.l2_loss(tf.sub(network_output, tf.reshape(self.ybatch, [-1, self.lstm_input.feature_vector_size]))))
 
             # summary data
             tf.scalar_summary('training_loss', self.loss)
