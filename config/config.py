@@ -12,6 +12,10 @@ from DL_FinalProject.config import gan91
 from DL_FinalProject.config import gan1001
 from DL_FinalProject.config import gan1999
 from DL_FinalProject.config import gan9991
+from DL_FinalProject.config import gan2575
+from DL_FinalProject.config import gan7525
+from DL_FinalProject.config import ganfd
+from DL_FinalProject.config import gansdg
 
 configs = {'test': test_config.TestLSTMConfig, 
            'model1': model1.ModelOneLSTMConfig,
@@ -26,5 +30,9 @@ configs = {'test': test_config.TestLSTMConfig,
            'gan91': gan91.LSTMGAN91Config,
            'gan1001': gan1001.LSTMGAN1001Config,
            'gan1999': gan1999.LSTMGAN1999Config,
-           'gan9991': gan9991.LSTMGAN9991Config}
+           'gan9991': gan9991.LSTMGAN9991Config,
+           'gan2575': gan2575.LSTMGAN2575Config,
+           'gan7525': gan7525.LSTMGAN7525Config,
+           'ganfd': ganfd.LSTMGANFDConfig,
+           'gansdg': gansdg.LSTMGANSDGConfig}
 
