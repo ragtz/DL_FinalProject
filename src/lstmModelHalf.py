@@ -45,11 +45,13 @@ class LSTMModel(object):
 
             batch_time_shape = tf.shape(outputs)
             self.final_outputs = tf.reshape(network_output, (batch_time_shape[0], batch_time_shape[1], self.lstm_input.feature_vector_size))
+            final_outputs_reshaped = tf.reshape(self.final_outputs[:,self.config.num_steps/2:,:], [-1, self.lstm_input.feature_vector_size])
 
             self.ybatch = tf.placeholder(tf.float32, (None, None, self.lstm_input.feature_vector_size))
-            ybatch_reshaped = tf.reshape(self.ybatch, [-1, self.lstm_input.feature_vector_size])
+            #ybatch_reshaped = tf.reshape(self.ybatch, [-1, self.lstm_input.feature_vector_size])
+            ybatch_reshaped = tf.reshape(self.ybatch[:,self.config.num_steps/2:,:], [-1, self.lstm_input.feature_vector_size])
 
-            self.loss = tf.reduce_mean(tf.nn.l2_loss(tf.sub(network_output, ybatch_reshaped)))
+            self.loss = tf.reduce_mean(tf.nn.l2_loss(tf.sub(final_outputs_reshaped, ybatch_reshaped)))
             self.train_op = tf.train.RMSPropOptimizer(self.config.learning_rate, decay=self.config.decay, momentum=self.config.momentum).minimize(self.loss)
 
             self.test_loss = tf.placeholder(tf.float32, shape=())
