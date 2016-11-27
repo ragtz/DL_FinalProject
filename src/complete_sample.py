@@ -28,7 +28,7 @@ def main(argv):
         out = lstm_model.run_step([X[i,:]], False)
     '''
 
-    X = lstm_input.test_data.T
+    X = lstm_input.test_data
     print X.shape
 
     '''
