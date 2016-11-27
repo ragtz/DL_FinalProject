@@ -32,6 +32,7 @@ def main(argv):
     samples = []
 
     for i in range(X.shape[0]):
+        print i
         samples.append([])
         for j in range(X.shape[2]):
             if j < X.shape[2] - 50:
