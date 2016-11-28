@@ -50,6 +50,8 @@ class LSTMGANModel(object):
         self.d_loss = -(tf.reduce_mean(tf.log(self.d1_outputs) + tf.log(1 - self.d2_outputs)))
         self.g_loss = tf.reduce_mean(tf.log(1 - self.d2_outputs) + tf.nn.l2_loss(tf.sub(g_outputs_reshaped, ybatch_reshaped)))
 
+        #self.global_step = tf.Variable(0, name='global_step', trainable=False)
+
         #self.g_loss = tf.reduce_mean(tf.log(1 - self.d2_outputs))
         #self.g_loss = tf.reduce_mean(tf.nn.l2_loss(tf.sub(g_outputs_reshaped, ybatch_reshaped)))
         #self.g_loss = tf.reduce_mean(tf.nn.l2_loss(tf.sub(g_network_output, ybatch_reshaped)))
@@ -74,6 +76,8 @@ class LSTMGANModel(object):
         tf.scalar_summary('rec_loss', self.rec_loss)
         tf.scalar_summary('training_loss', self.loss)
         
+        #tf.scalar_summary('global_step', self.global_step)
+
         tf.histogram_summary('d1_outputs', self.d1_outputs)
         tf.histogram_summary('d2_outputs', self.d2_outputs)
 
@@ -87,7 +91,7 @@ class LSTMGANModel(object):
         #self.train_d = tf.train.RMSPropOptimizer(self.config.d_learning_rate, decay=self.config.d_decay, momentum=self.config.d_momentum).minimize(self.d_loss, var_list=d_params)
         #self.train_g = tf.train.RMSPropOptimizer(self.config.g_learning_rate, decay=self.config.g_decay, momentum=self.config.g_momentum).minimize(self.g_loss, var_list=g_params)
 
-        self.train_d = tf.train.RMSPropOptimizer(self.config.d_learning_rate, decay=self.config.d_decay, momentum=self.config.d_momentum).minimize(-self.loss, var_list=d_params)
+        self.train_d = tf.train.RMSPropOptimizer(self.config.d_learning_rate, decay=self.config.d_decay, momentum=self.config.d_momentum).minimize(-self.loss, var_list=d_params, global_step=self.global_step)
         self.train_g = tf.train.RMSPropOptimizer(self.config.g_learning_rate, decay=self.config.g_decay, momentum=self.config.g_momentum).minimize(self.loss, var_list=g_params)
 
     def get_var_names(self, gv):
@@ -183,6 +187,17 @@ class LSTMGANModel(object):
 
         return network_output, final_outputs, lstm_new_state
 
+    def d_train_batch(self, xbatch, ybatch):
+        initial_state = np.zeros((self.config.batch_size, 2*self.config.num_layers*self.config.lstm_size))
+
+        d_loss, _, d1_outputs, d2_outputs, summary = self.session.run([self.d_loss, self.train_d, self.d1_outputs, self.d2_outputs, self.train_summary], feed_dict={self.xbatch: xbatch, self.ybatch: ybatch, self.initial_state: initial_state})
+
+        g_loss = self.session.run(self.g_loss, feed_dict={self.xbatch: xbatch, self.ybatch: ybatch, self.initial_state: initial_state})
+
+        self.train_writer.add_summary(summary)
+
+        return d_loss, g_loss
+
     def train_batch(self, xbatch, ybatch):
         initial_state = np.zeros((self.config.batch_size, 2*self.config.num_layers*self.config.lstm_size))
         
@@ -193,6 +208,7 @@ class LSTMGANModel(object):
 
         # train generator
         g_loss, _ = self.session.run([self.g_loss, self.train_g], feed_dict={self.xbatch: xbatch, self.ybatch: ybatch, self.initial_state: initial_state})
+        #g_loss = 0
 
         return d_loss, g_loss
 
@@ -202,9 +218,19 @@ class LSTMGANModel(object):
             d_loss, g_loss = self.train_batch(x, y)
         return d_loss, g_loss
 
+    def d_train_epoch(self):
+        for i in np.random.permutation(self.lstmgan_input.epoch_size):
+            x, y = reader.get_batch(self.lstmgan_input.X, self.lstmgan_input.Y, i)
+            d_loss, g_loss = self.d_train_batch(x, y)
+        return d_loss, g_loss
+
     def train(self, saver=None, model_file=None, save_iter=None, test_iter=None):
         for i in range(self.config.max_epoch):
-            d_loss, g_loss = self.train_epoch()
+            if (i+1)%2 == 0:
+                d_loss, g_loss = self.train_epoch()
+            else:
+                d_loss, g_loss = self.d_train_epoch()
+
             print "Epoch " + str(i) + ": " + str(d_loss) + ", " + str(g_loss)
 
             if save_iter != None and i%save_iter == 0:
