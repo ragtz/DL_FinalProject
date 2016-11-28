@@ -28,7 +28,9 @@ def main(argv):
         out = lstm_model.run_step([X[i,:]], False)
     '''
 
-    X = lstm_input.test_data/255.0
+    X = lstm_input.test_data
+    print np.max(X)
+    print np.min(X)
     samples = []
 
     for i in range(X.shape[0]):
