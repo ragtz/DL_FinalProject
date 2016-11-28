@@ -257,3 +257,16 @@ class LSTMGANModel(object):
 
         return out[0][0]
 
+    def run_step_orig(self, x, init_zero_state=True):
+        if init_zero_state:
+            init_value = np.zeros((2*self.config.num_layers*self.config.hidden_size,))
+        else:
+            init_value = self.lstm_last_state
+
+        out, next_lstm_state = self.session.run([self.g_outputs, self.lstm_new_state], feed_dict={self.xbatch: [x], self.initial_state: [init_value]})
+
+        self.lstm_last_state = next_lstm_state[0]
+
+        return out[0][0]
+
+
