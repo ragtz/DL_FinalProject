@@ -35,11 +35,8 @@ def main(argv):
         print i
         samples.append([])
         for j in range(X.shape[2]):
-            if j < X.shape[2] - 50:
-                out = lstm_model.run_step([X[i,:,j]], False)
-            else:
-                out = lstm_model.run_step([out], False)
-                samples[i].append(out)
+            out = lstm_model.run_step([X[i,:,j]], False)
+            samples[i].append(out)
 
     np.save(FLAGS.samples, samples)
 
