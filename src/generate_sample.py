@@ -3,7 +3,8 @@ import DL_FinalProject.config.config as config
 import tensorflow as tf
 
 tf.app.flags.DEFINE_string('config', 'test', 'Model config')
-tf.app.flags.DEFINE_string('data', None, 'Data numpy file')
+tf.app.flags.DEFINE_string('train_data', None, 'Data numpy file')
+tf.app.flags.DEFINE_string('test_data', None, 'Data numpy file')
 tf.app.flags.DEFINE_string('model', None, 'Name of model')
 tf.app.flags.DEFINE_string('num_samples', 1, 'Number of samples to generate')
 tf.app.flags.DEFINE_string('sample_length', 500, 'Length of generated samples')
@@ -14,10 +15,10 @@ def main(argv):
     session = tf.Session()
 
     print "Load input"
-    lstm_input = LSTMInput(config.configs[FLAGS.config], FLAGS.data)
+    lstm_input = LSTMInput(config.configs[FLAGS.config], FLAGS.train_data, FLAGS.test_data)
 
     print "Init Model"
-    lstm_model = LSTMModel(config.configs[FLAGS.config], lstm_input, session)
+    lstm_model = LSTMModel(config.configs[FLAGS.config], lstm_input, session, 'None')
     session.run(tf.initialize_all_variables())
 
     saver = tf.train.Saver(tf.all_variables())
