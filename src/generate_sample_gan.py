@@ -37,7 +37,7 @@ def main(argv):
         for j in range(int(FLAGS.sample_length)):
             out = lstm_model.run_step_orig([samples[i][-1]], False)
             #out = lstm_model.run_step([out], False)
-            samples[i].append(np.clip(out, 0, 1))
+            samples[i].append(np.array(255*np.clip(out, 0, 1), dtype=np.int16)/255.0)
 
     np.save(FLAGS.samples, samples)
 
