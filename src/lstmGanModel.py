@@ -104,6 +104,47 @@ class LSTMGANModel(object):
         return tf.pack([tf.nn.l2_loss(g) for g, _ in gv])
 
     def discriminator(self, xbatch, initial_state=None):
+        xbatch_reshaped = tf.reshape(xbatch, [-1, self.config.width, self.lstmgan_input.feature_vector_size, 1])
+
+        conv1_shape = [5,5,1,32]
+        conv1_W = tf.get_variable("conv1_W", conv1_shape, initializer=tf.random_normal_initializer(mean=0.0, stddev=0.01))
+        conv1_B = tf.get_variable("conv1_B", (conv1_shape[-1],), initializer=tf.random_normal_initializer(mean=0.0, stddev=0.01))
+        conv1 = tf.nn.relu(tf.nn.conv2d(xbatch_reshaped, conv1_W, strides=[1,1,1,1], padding='SAME') + conv1_B)
+        conv1_P = tf.nn.max_pool(conv1, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME')
+
+        conv2_shape = [5,5,32,64]
+        conv2_W = tf.get_variable("conv2_W", conv2_shape, initializer=tf.random_normal_initializer(mean=0.0, stddev=0.01))
+        conv2_B = tf.get_variable("conv2_B", (conv2_shape[-1],), initializer=tf.random_normal_initializer(mean=0.0, stddev=0.01))
+        conv2 = tf.nn.relu(tf.nn.conv2d(conv1_P, conv2_W, strides=[1,1,1,1], padding='SAME') + conv2_B)
+        conv2_P = tf.nn.max_pool(conv2, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME')
+
+        conv3_shape = [5,5,64,128]
+        conv3_W = tf.get_variable("conv3_W", conv3_shape, initializer=tf.random_normal_initializer(mean=0.0, stddev=0.01))
+        conv3_B = tf.get_variable("conv3_B", (conv3_shape[-1],), initializer=tf.random_normal_initializer(mean=0.0, stddev=0.01))
+        conv3 = tf.nn.relu(tf.nn.conv2d(conv2_P, conv3_W, strides=[1,1,1,1], padding='SAME') + conv3_B)
+        conv3_P = tf.nn.max_pool(conv3, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME')
+
+        conv4_shape = [5,5,128,128]
+        conv4_W = tf.get_variable("conv4_W", conv4_shape, initializer=tf.random_normal_initializer(mean=0.0, stddev=0.01))
+        conv4_B = tf.get_variable("conv4_B", (conv4_shape[-1],), initializer=tf.random_normal_initializer(mean=0.0, stddev=0.01))
+        conv4 = tf.nn.relu(tf.nn.conv2d(conv3_P, conv4_W, strides=[1,1,1,1], padding='SAME') + conv4_B)
+        conv4_P = tf.nn.max_pool(conv4, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME')
+
+        w = int(np.ceil(np.ceil(np.ceil(np.ceil(self.config.width/2)/2)/2)/2))
+        h = int(np.ceil(np.ceil(np.ceil(np.ceil(self.lstmgan_input.feature_vector_size/2)/2)/2)/2))
+        fc1_shape = [w*h*128, self.config.fc_size]
+        fc1_W = tf.get_variable("fc1_W", fc1_shape, initializer=tf.random_normal_initializer(mean=0.0, stddev=0.01))
+        fc1_B = tf.get_variable("fc1_B", (fc1_shape[-1],), initializer=tf.random_normal_initializer(mean=0.0, stddev=0.01))
+        fc1 = tf.nn.relu(tf.matmul(tf.reshape(conv4_P, [-1, fc1_shape[0]]), fc1_W) + fc1_B)
+
+        fc2_shape = [self.config.fc_size, 1]
+        fc2_W = tf.get_variable("fc2_W", fc2_shape, initializer=tf.random_normal_initializer(mean=0.0, stddev=0.01))
+        fc2_B = tf.get_variable("fc2_B", (fc2_shape[-1],), initializer=tf.random_normal_initializer(mean=0.0, stddev=0.01))
+        fc2_presig = tf.matmul(tf.reshape(fc1, [-1, fc2_shape[0]]), fc2_W) + fc2_B
+        fc2 = tf.sigmoid(tf.matmul(tf.reshape(fc1, [-1, fc2_shape[0]]), fc2_W) + fc2_B)
+
+        return fc2
+        '''
         if self.dtype == 0:
             xbatch_reshaped = tf.reshape(xbatch, [-1, self.config.width, self.lstmgan_input.feature_vector_size, 1])
 
@@ -168,6 +209,7 @@ class LSTMGANModel(object):
                 network_output = tf.sigmoid(tf.matmul(last_output_reshaped, rnn_out_W) + rnn_out_B)
 
             return network_output
+        '''
 
     def generator(self, xbatch, initial_state):
         lstm_cell = tf.nn.rnn_cell.BasicLSTMCell(self.config.lstm_size, forget_bias=1.0, state_is_tuple=False)
