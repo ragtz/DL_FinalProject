@@ -39,7 +39,7 @@ def main(argv):
     fc1_B = [v for v in tf.trainable_variables() if v.name == "lstm_gan_model/fc1_B:0"][0].eval(session=session)
 
     fc2_W = [v for v in tf.trainable_variables() if v.name == "lstm_gan_model/fc2_W:0"][0].eval(session=session)
-    fc2_B = [v for v in tf.trainable_variables() if v.name == "lstm_gan_modelfc2_B:0"][0].eval(session=session)
+    fc2_B = [v for v in tf.trainable_variables() if v.name == "lstm_gan_model/fc2_B:0"][0].eval(session=session)
 
     print "conv1_W", np.min(conv1_W), np.mean(conv1_W), np.max(conv1_W)
     print "conv1_B", np.min(conv1_B), np.mean(conv1_B), np.max(conv1_B)
