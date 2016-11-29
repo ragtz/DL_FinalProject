@@ -23,23 +23,23 @@ def main(argv):
 
     #print [v.name for v in tf.trainable_variables()]
 
-    conv1_W = [v for v in tf.trainable_variables() if v.name == "lstm_gan_model/conv1_W:0"][0].eval()
-    conv1_B = [v for v in tf.trainable_variables() if v.name == "lstm_gan_model/conv1_B:0"][0].eval()
+    conv1_W = [v for v in tf.trainable_variables() if v.name == "lstm_gan_model/conv1_W:0"][0].eval(session=session)
+    conv1_B = [v for v in tf.trainable_variables() if v.name == "lstm_gan_model/conv1_B:0"][0].eval(session=session)
 
-    conv2_W = [v for v in tf.trainable_variables() if v.name == "lstm_gan_model/conv2_W:0"][0].eval()
-    conv2_B = [v for v in tf.trainable_variables() if v.name == "lstm_gan_model/conv2_B:0"][0].eval()
+    conv2_W = [v for v in tf.trainable_variables() if v.name == "lstm_gan_model/conv2_W:0"][0].eval(session=session)
+    conv2_B = [v for v in tf.trainable_variables() if v.name == "lstm_gan_model/conv2_B:0"][0].eval(session=session)
 
-    conv3_W = [v for v in tf.trainable_variables() if v.name == "lstm_gan_model/conv3_W:0"][0].eval()
-    conv3_B = [v for v in tf.trainable_variables() if v.name == "lstm_gan_model/conv3_B:0"][0].eval()
+    conv3_W = [v for v in tf.trainable_variables() if v.name == "lstm_gan_model/conv3_W:0"][0].eval(session=session)
+    conv3_B = [v for v in tf.trainable_variables() if v.name == "lstm_gan_model/conv3_B:0"][0].eval(session=session)
 
-    conv4_W = [v for v in tf.trainable_variables() if v.name == "lstm_gan_model/conv4_W:0"][0].eval()
-    conv4_B = [v for v in tf.trainable_variables() if v.name == "lstm_gan_model/conv4_B:0"][0].eval()
+    conv4_W = [v for v in tf.trainable_variables() if v.name == "lstm_gan_model/conv4_W:0"][0].eval(session=session)
+    conv4_B = [v for v in tf.trainable_variables() if v.name == "lstm_gan_model/conv4_B:0"][0].eval(session=session)
 
-    fc1_W = [v for v in tf.trainable_variables() if v.name == "lstm_gan_model/fc1_W:0"][0].eval()
-    fc1_B = [v for v in tf.trainable_variables() if v.name == "lstm_gan_modelfc1_B:0"][0].eval()
+    fc1_W = [v for v in tf.trainable_variables() if v.name == "lstm_gan_model/fc1_W:0"][0].eval(session=session)
+    fc1_B = [v for v in tf.trainable_variables() if v.name == "lstm_gan_modelfc1_B:0"][0].eval(session=session)
 
-    fc2_W = [v for v in tf.trainable_variables() if v.name == "lstm_gan_model/fc2_W:0"][0].eval()
-    fc2_B = [v for v in tf.trainable_variables() if v.name == "lstm_gan_modelfc2_B:0"][0].eval()
+    fc2_W = [v for v in tf.trainable_variables() if v.name == "lstm_gan_model/fc2_W:0"][0].eval(session=session)
+    fc2_B = [v for v in tf.trainable_variables() if v.name == "lstm_gan_modelfc2_B:0"][0].eval(session=session)
 
     print "conv1_W", np.min(conv1_W), np.mean(conv1_W), np.max(conv1_W)
     print "conv1_B", np.min(conv1_B), np.mean(conv1_B), np.max(conv1_B)
