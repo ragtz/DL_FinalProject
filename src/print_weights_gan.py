@@ -21,6 +21,8 @@ def main(argv):
     saver = tf.train.Saver(tf.all_variables())
     saver.restore(session, FLAGS.model)
 
+    print [v.name for v in tf.trainable_variables()]
+
     conv1_W = [v for v in tf.trainable_variables() if v.name == "lstm_gan_model/conv1_W"][0].eval(sess=session)
     conv1_B = [v for v in tf.trainable_variables() if v.name == "lstm_gan_model/conv1_B"][0].eval(sess=session)
 
