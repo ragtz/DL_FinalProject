@@ -36,7 +36,7 @@ def main(argv):
     conv4_B = [v for v in tf.trainable_variables() if v.name == "lstm_gan_model/conv4_B:0"][0].eval(session=session)
 
     fc1_W = [v for v in tf.trainable_variables() if v.name == "lstm_gan_model/fc1_W:0"][0].eval(session=session)
-    fc1_B = [v for v in tf.trainable_variables() if v.name == "lstm_gan_modelfc1_B:0"][0].eval(session=session)
+    fc1_B = [v for v in tf.trainable_variables() if v.name == "lstm_gan_model/fc1_B:0"][0].eval(session=session)
 
     fc2_W = [v for v in tf.trainable_variables() if v.name == "lstm_gan_model/fc2_W:0"][0].eval(session=session)
     fc2_B = [v for v in tf.trainable_variables() if v.name == "lstm_gan_modelfc2_B:0"][0].eval(session=session)
